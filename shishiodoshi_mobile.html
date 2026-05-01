@@ -1,0 +1,5184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シシオドシ - デジタル版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+  :root {
+    --water: #2bb5d8;
+    --gravel: #c8c8c8;
+    --lawn: #aadd44;
+    --azalea: #2eaa44;
+    --cherry: #f090c0;
+    --red-p: #e03030;
+    --blue-p: #2060e0;
+    --yellow-p: #e0c000;
+    --purple-p: #9020c0;
+    --board-border: #4a7a4a;
+    --bg: #1a3a1a;
+    --panel: #0e2010;
+    --gold: #d4a820;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: #e8e8d8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 80%, rgba(0,80,0,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,60,30,0.3) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* === SCREENS === */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+
+  /* === TITLE SCREEN === */
+  /* ===== TITLE SCREEN ===== */
+  #titleScreen {
+    background: #0a1f0a;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .title-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  /* Left: green panel */
+  .title-left {
+    background: #0e2d10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Bamboo illustration (CSS art) */
+  .bamboo-illustration {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  .bamboo-cane {
+    width: 60px;
+    height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      #4a8a20 0px, #4a8a20 80px,
+      #2a5a10 80px, #2a5a10 85px,
+      #6aaa30 85px, #6aaa30 160px,
+      #2a5a10 160px, #2a5a10 165px
+    );
+    border-radius: 4px;
+    margin: 0 8px;
+    transform: rotate(-5deg) translateY(-10%);
+  }
+  .bamboo-cane:nth-child(2) { transform: rotate(2deg) translateY(5%); height: 120%; opacity: 0.8; }
+  .bamboo-cane:nth-child(3) { transform: rotate(-3deg) translateY(-5%); width: 40px; opacity: 0.6; }
+
+  .wagames-badge {
+    position: relative;
+    z-index: 2;
+    background: white;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 20px;
+    margin: 28px 28px 28px 0;
+    width: fit-content;
+  }
+  .wagames-ja {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #0e2d10;
+    line-height: 1.1;
+  }
+  .wagames-ja span { color: #1a7a30; }
+  .wagames-en {
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 0.15em;
+    font-family: Georgia, serif;
+  }
+
+  .title-center-block {
+    position: relative;
+    z-index: 2;
+    background: #000;
+    padding: 32px 38px;
+    margin: -240px 0 0 0;
+    width: 120%;
+  }
+  .title-label-sm {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    color: #aaa;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+  }
+  .title-main-jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(20px, 3.4vw, 38px);
+    font-weight: 900;
+    color: white;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+  .title-main-en {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(18px, 3vw, 28px);
+    color: #ccc;
+    letter-spacing: 0.15em;
+    border-top: 1px solid #444;
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+
+  .title-specs {
+    position: relative;
+    z-index: 2;
+    padding: 24px 32px 32px;
+  }
+  .spec-line {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(13px, 2vw, 17px);
+    color: white;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .spec-line-en {
+    font-size: 11px;
+    color: #88aa88;
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+    font-family: Georgia, serif;
+  }
+
+  /* Right: image + catchphrase + setup */
+  .title-right {
+    background: #060e06;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Bamboo photo simulation with CSS */
+  .bamboo-photo {
+    flex: 1;
+    background:
+      radial-gradient(ellipse at 60% 30%, rgba(80,120,40,0.6) 0%, transparent 60%),
+      radial-gradient(ellipse at 30% 70%, rgba(20,60,10,0.8) 0%, transparent 50%),
+      linear-gradient(160deg, #1a3a10 0%, #0a1a05 40%, #050d03 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  /* SVG bamboo art in photo area */
+  .bamboo-photo svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    opacity: 0.7;
+  }
+
+  .catchphrase {
+    position: absolute;
+    bottom: 20px;
+    right: 24px;
+    text-align: right;
+    z-index: 3;
+  }
+  .catch-line1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+    line-height: 1.25;
+    display: block;
+    padding-right: 1em;
+  }
+  .catch-line2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+    line-height: 1.25;
+    display: block;
+  }
+  .catch-en {
+    font-size: clamp(9px, 1.3vw, 13px);
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.08em;
+    font-family: Georgia, serif;
+    font-style: italic;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Setup panel (right bottom) */
+  .setup-panel {
+    background: rgba(0,0,0,0.75);
+    border-top: 2px solid #1a5a20;
+    padding: 24px 28px;
+    z-index: 4;
+  }
+
+  .setup-panel h2 {
+    font-family: 'Noto Serif JP', serif;
+    color: #88cc88;
+    margin-bottom: 16px;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+
+  .player-count-select {
+    display: flex; gap: 10px; margin-bottom: 16px;
+  }
+
+  .count-btn {
+    width: 52px; height: 52px;
+    border: 2px solid #2a5a20;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.5);
+    color: #88aa88;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .count-btn:hover, .count-btn.selected {
+    border-color: #4aaa40;
+    background: rgba(30,80,20,0.6);
+    color: white;
+  }
+
+  .player-colors {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+
+  .color-tag {
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .color-tag.red { background: rgba(224,48,48,0.15); border-color: #c03030; color: #ff8888; }
+  .color-tag.blue { background: rgba(32,96,224,0.15); border-color: #3060c0; color: #88aaff; }
+  .color-tag.yellow { background: rgba(200,160,0,0.15); border-color: #a08010; color: #ffe060; }
+  .color-tag.purple { background: rgba(144,32,192,0.15); border-color: #7020a0; color: #cc88ff; }
+
+  .setup-btns {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+
+  .btn-start {
+    background: #1a6a20;
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    font-size: 15px;
+    font-family: 'Noto Serif JP', serif;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+  .btn-start:hover { background: #2a8a30; transform: translateY(-1px); }
+
+  /* Rules button */
+  .btn-rules {
+    background: transparent;
+    color: #88aa88;
+    border: 1px solid #2a5a20;
+    padding: 13px 20px;
+    font-size: 13px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .btn-rules:hover { border-color: #4aaa40; color: #aaccaa; }
+
+  @media (max-width: 700px) {
+    .title-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100dvh;
+    }
+    .title-left {
+      padding-bottom: 0;
+    }
+    .bamboo-photo { min-height: 180px; max-height: 260px; }
+    .title-center-block {
+      margin-top: -120px;
+      width: 100%;
+      padding: 20px 22px;
+    }
+    .title-main-jp { font-size: clamp(18px, 6vw, 28px); white-space: normal; }
+    .title-main-en { font-size: clamp(14px, 4vw, 20px); }
+    .title-specs { padding: 16px 20px 12px; }
+    .spec-line { font-size: clamp(12px, 3.5vw, 15px); }
+    .title-right {
+      display: flex;
+      flex-direction: column;
+    }
+    .setup-panel {
+      padding: 18px 18px 24px;
+      flex: 1;
+    }
+    .catch-line1, .catch-line2 {
+      font-size: clamp(22px, 7vw, 38px);
+    }
+    .wagames-badge {
+      margin: 18px 18px 18px 0;
+    }
+    .count-btn { width: 48px; height: 48px; font-size: 20px; }
+    .mode-btn { padding: 10px 6px; }
+  }
+
+  /* === RULES MODAL === */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #0e1e10;
+    border: 1px solid rgba(170,221,68,0.4);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-box h2 { color: var(--gold); font-family: 'Noto Serif JP', serif; margin-bottom: 20px; }
+  .modal-box h3 { color: var(--lawn); margin: 16px 0 8px; font-size: 15px; }
+  .modal-box p { font-size: 14px; line-height: 1.8; color: #c8d8c0; margin-bottom: 8px; }
+  .modal-box .close-btn {
+    position: sticky; bottom: 0;
+    display: block; width: 100%;
+    background: var(--lawn); color: #1a3a1a;
+    border: none; padding: 12px;
+    font-size: 15px; font-weight: 700;
+    border-radius: 8px; cursor: pointer;
+    margin-top: 20px;
+  }
+
+  /* === GAME SCREEN === */
+  #gameScreen {
+    flex-direction: column;
+    padding: 0;
+    justify-content: flex-start;
+    background:
+      radial-gradient(ellipse at 10% 50%, rgba(0,80,0,0.5) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 50%, rgba(0,60,30,0.4) 0%, transparent 50%);
+  }
+
+  .game-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  /* Header */
+  .game-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .game-title-small {
+    font-family: 'Noto Serif JP', serif;
+    color: var(--lawn);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .turn-info {
+    text-align: center;
+  }
+  .turn-player-name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .turn-label {
+    font-size: 11px;
+    color: #888;
+  }
+  .btn-menu {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #aaa;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .btn-menu:hover { border-color: #fff; color: #fff; }
+
+  /* Side panels */
+  .side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    min-width: 160px;
+  }
+
+  .player-info-card {
+    background: rgba(0,0,0,0.4);
+    border-radius: 8px;
+    padding: 10px;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: border-color 0.3s;
+  }
+  .player-info-card.active { border-color: var(--player-color) !important; box-shadow: 0 0 12px var(--player-glow); }
+
+  .player-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .player-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .player-card-name { font-size: 13px; font-weight: 700; }
+
+  .score-display {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1;
+    margin: 4px 0;
+  }
+  .score-label { font-size: 10px; color: #888; text-align: center; }
+
+  .hand-chips {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; min-height: 44px;
+  }
+  .hand-chip {
+    width: 44px; height: 44px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    padding: 0;
+  }
+  .hand-chip svg { width: 44px; height: 44px; display: block; }
+  .hand-chip:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+  .hand-chip.selected { outline: 3px solid white; transform: scale(1.1); box-shadow: 0 0 12px rgba(255,255,255,0.6); }
+
+  /* Board */
+  .board-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .board-container {
+    position: relative;
+  }
+
+  .direction-label {
+    text-align: center;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: 22px;
+    height: 28px;
+    line-height: 28px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  }
+  .dir-N { color: #e03030; }
+  .dir-E { color: #2060e0; }
+  .dir-S { color: #d4a820; }
+  .dir-W { color: #9020c0; }
+
+  .board-row-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 3px;
+    padding: 8px;
+    background: #3a6a3a;
+    border-radius: 8px;
+    border: 4px solid #4a8a4a;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1);
+  }
+
+  .cell {
+    width: 52px;
+    height: 52px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: visible;
+    font-size: 9px;
+    border: 2px solid rgba(0,0,0,0.2);
+  }
+
+  .cell:hover.placeable { transform: scale(1.05); border-color: rgba(255,255,255,0.6) !important; }
+  .cell.placeable { border-color: rgba(255,255,255,0.4) !important; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 4px rgba(255,255,255,0.1); } }
+
+  /* Cell types */
+  .cell.water { background: var(--water); }
+  .cell.gravel { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); }
+  .cell.lawn { background: linear-gradient(135deg, #aadd44, #88bb22); }
+  .cell.azalea { background: linear-gradient(135deg, #2eaa44, #1a8830); }
+  .cell.cherry { background: linear-gradient(135deg, #f090c0, #d06090); }
+
+  /* Shishiodoshi token on cell */
+  .shishiodoshi-token {
+    width: 46px; height: 46px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,0.55);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    pointer-events: none;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Bamboo chip on cell */
+  .bamboo-token {
+    position: absolute;
+    inset: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Water flow animation */
+  .water-flow {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    pointer-events: none;
+    animation: waterGlow 0.8s ease-out forwards;
+  }
+  @keyframes waterGlow {
+    0% { background: rgba(43,181,216,0.8); opacity: 1; }
+    100% { background: rgba(43,181,216,0); opacity: 0; }
+  }
+
+  /* Bottom area */
+  .game-footer {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .action-section {
+    flex: 1;
+    min-width: 200px;
+  }
+  .action-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .action-btns {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 700;
+  }
+  .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-place { background: linear-gradient(135deg, #4a8a20, #6aaa30); color: white; }
+  .btn-place:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .btn-place.active { background: linear-gradient(135deg, #aadd44, #88bb22); color: #1a3a1a; }
+
+  .btn-card { background: linear-gradient(135deg, #1a6080, #2088b0); color: white; }
+  .btn-card:hover:not(:disabled) { transform: translateY(-1px); }
+
+  .btn-rotate { background: linear-gradient(135deg, #805020, #a07030); color: white; }
+  .btn-destroy { background: linear-gradient(135deg, #802020, #a03030); color: white; }
+  .btn-end-turn { background: linear-gradient(135deg, #404040, #606060); color: white; }
+
+  /* Dice area */
+  .dice-section {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .dice-face {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #f0e8d0, #d8c8a0);
+    border-radius: 10px;
+    border: 3px solid #a09060;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #2a1a0a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  .dice-face:hover { transform: rotate(10deg) scale(1.05); }
+  .dice-rolling { animation: roll 0.4s ease-out; }
+  @keyframes roll { 0% { transform: rotate(0deg) scale(0.8); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
+
+  .actions-left {
+    font-size: 13px;
+    text-align: center;
+  }
+  .actions-left span { color: var(--gold); font-size: 22px; font-weight: 900; }
+
+  /* Card draw area */
+  .card-area {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .card-deck {
+    width: 40px; height: 56px;
+    background: linear-gradient(135deg, #0a4a20, #1a6a30);
+    border-radius: 6px;
+    border: 2px solid rgba(170,221,68,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+  }
+
+  .drawn-card {
+    width: 56px; height: 56px;
+    background: #1a3a4a;
+    border-radius: 6px;
+    border: 2px solid var(--water);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    text-align: center;
+    padding: 4px;
+    color: #8ae0ff;
+  }
+
+  /* Log */
+  .log-area {
+    flex: 1;
+    min-width: 160px;
+  }
+  .log-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .log-box {
+    height: 64px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #aaa;
+  }
+  .log-entry { color: #c8d8c8; }
+  .log-entry.highlight { color: var(--gold); }
+
+  /* Chip selection mode overlay */
+  .mode-badge {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.85);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 16px 28px;
+    text-align: center;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .mode-badge.show { display: block; }
+  .mode-badge-title { color: var(--gold); font-weight: 700; margin-bottom: 4px; }
+  .mode-badge-hint { font-size: 12px; color: #aaa; }
+
+  /* Turn start popup */
+  .turn-popup-overlay {
+    display: none;
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 150;
+  }
+  .turn-popup-overlay.show { display: block; }
+  .turn-popup-box {
+    background: #0e1e10;
+    border: 3px solid var(--player-turn-color, #aaa);
+    border-radius: 16px;
+    padding: 24px 36px;
+    text-align: center;
+    box-shadow: 0 0 30px var(--player-turn-glow, rgba(255,255,255,0.2)), 0 4px 20px rgba(0,0,0,0.9);
+    cursor: pointer;
+    transition: transform 0.15s;
+    width: 280px;
+  }
+  .turn-popup-box:hover { transform: scale(1.03); }
+  .turn-popup-label {
+    font-size: 13px;
+    color: #888;
+    letter-spacing: 0.15em;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-bottom: 10px;
+  }
+  .turn-popup-name {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  .turn-popup-sub {
+    font-size: 13px;
+    color: #888;
+    margin-top: 18px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Win overlay */
+  .win-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .win-overlay.show { display: flex; }
+  .win-box {
+    background: #0e1e10;
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    padding: 48px;
+    text-align: center;
+    max-width: 400px;
+  }
+  .win-kanji { font-family: 'Noto Serif JP', serif; font-size: 64px; color: var(--gold); line-height: 1; }
+  .win-kanji.defeat { color: #888; font-size: 48px; }
+  .win-result-sub { font-size: 13px; color: #aaa; margin: 6px 0 0; font-family: 'Noto Sans JP', sans-serif; min-height: 20px; }
+  .win-name { font-size: 24px; font-weight: 700; margin: 12px 0; }
+  .win-score { font-size: 18px; color: #888; }
+  .win-btns { display: flex; gap: 10px; margin-top: 24px; justify-content: center; flex-wrap: wrap; }
+  .btn-again { background: var(--lawn); color: #1a3a1a; border: none; padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: opacity 0.2s; }
+  .btn-again:hover { opacity: 0.85; }
+  .btn-review { background: rgba(255,255,255,0.12); color: #ccc; border: 1px solid rgba(255,255,255,0.25); padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+  .btn-review:hover { background: rgba(255,255,255,0.2); color: white; }
+
+  /* Review mode banner */
+  .review-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(10,20,10,0.92);
+    border-bottom: 2px solid var(--lawn);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    z-index: 200;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: var(--lawn);
+    backdrop-filter: blur(6px);
+  }
+  .review-banner button {
+    background: rgba(170,221,68,0.15);
+    border: 1px solid var(--lawn);
+    color: var(--lawn);
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.2s;
+  }
+  .review-banner button:hover { background: var(--lawn); color: #1a3a1a; }
+
+  /* Chip color utility */
+  .red-chip { background: var(--red-p); }
+  .blue-chip { background: var(--blue-p); }
+  .yellow-chip { background: var(--yellow-p); }
+  .purple-chip { background: var(--purple-p); }
+
+  /* Bamboo shapes */
+  .bam-svg { pointer-events: none; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .game-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+    }
+    .side-panel { flex-direction: row; flex-wrap: wrap; }
+    .cell { width: 38px; height: 38px; font-size: 7px; }
+    .shishiodoshi-token { width: 32px; height: 32px; font-size: 11px; }
+  }
+
+  /* ===== SMARTPHONE FULL-SCREEN LAYOUT ===== */
+  @media (max-width: 600px) {
+    body { overflow: hidden; }
+
+    /* --- Title Screen --- */
+    #titleScreen {
+      height: 100dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .title-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: 100dvh;
+      height: auto;
+    }
+    .title-left {
+      order: 1;
+    }
+    .title-right {
+      order: 2;
+      flex: 1;
+    }
+    .bamboo-photo {
+      min-height: 160px;
+      max-height: 220px;
+    }
+    .title-center-block {
+      margin-top: -100px;
+      width: 100%;
+      padding: 16px 18px;
+    }
+    .title-main-jp { font-size: 20px; white-space: normal; }
+    .title-main-en { font-size: 16px; }
+    .title-specs { padding: 12px 16px 8px; }
+    .spec-line { font-size: 13px; }
+    .spec-line-en { font-size: 10px; margin-bottom: 8px; }
+    .wagames-badge { margin: 14px 14px 14px 0; padding: 8px 14px; }
+    .wagames-ja { font-size: 18px; }
+    .catch-line1, .catch-line2 { font-size: clamp(20px, 7vw, 34px); }
+    .setup-panel { padding: 16px 16px 28px; }
+    .setup-panel h2 { font-size: 13px; margin-bottom: 12px; }
+    .count-btn { width: 44px; height: 44px; font-size: 18px; }
+    .btn-start { padding: 12px 24px; font-size: 14px; }
+
+    /* --- Game Screen --- */
+    #gameScreen {
+      height: 100dvh;
+      overflow: hidden;
+      justify-content: flex-start;
+    }
+    .game-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      width: 100%;
+      max-width: 100%;
+      padding: 4px;
+      gap: 4px;
+      overflow: hidden;
+    }
+    .game-header {
+      padding: 5px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .game-title-small { font-size: 14px; }
+    .turn-player-name { font-size: 12px; }
+    .btn-menu { padding: 4px 10px; font-size: 11px; }
+
+    /* Hide side panels – show as compact strip above board */
+    .side-panel {
+      display: none;
+    }
+
+    /* Compact score strip */
+    .score-strip {
+      display: flex !important;
+      flex-direction: row;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .score-strip .player-info-card {
+      flex: 1;
+      min-width: 0;
+      padding: 5px 6px;
+      border-radius: 6px;
+    }
+    .score-strip .score-display { font-size: 18px; }
+    .score-strip .player-card-name { font-size: 10px; }
+    .score-strip .score-label { font-size: 9px; }
+    .score-strip .hand-chips { display: none; }
+    .score-strip .player-dot { width: 10px; height: 10px; }
+
+    /* Board area: fill remaining space */
+    .board-wrapper {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .board-container {
+      transform-origin: center center;
+    }
+
+    /* Scale board to fit screen */
+    #board {
+      gap: 2px;
+      padding: 5px;
+    }
+    .cell {
+      width: 32px;
+      height: 32px;
+      font-size: 6px;
+      border-width: 1px;
+    }
+    .shishiodoshi-token { width: 26px; height: 26px; }
+    .direction-label { font-size: 16px; height: 22px; line-height: 22px; }
+
+    /* Water card deck – make smaller */
+    .board-card-row { padding-left: 22px; margin-bottom: 3px; }
+    .wcard-deck-stack { width: 52px; height: 74px; }
+    .wcard { width: 52px; height: 74px; }
+    .board-dice-block { left: auto; right: 4px; top: 18px; width: 80px; }
+    .dice-face { width: 42px; height: 42px; font-size: 22px; }
+    .board-actions-left { font-size: 10px; }
+    .board-actions-left span { font-size: 14px; }
+
+    /* Footer: compact horizontal */
+    .game-footer {
+      border-radius: 6px;
+      padding: 5px 6px;
+      gap: 6px;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+    .action-section { min-width: auto; flex: 0 0 auto; }
+    .action-btns { gap: 4px; flex-wrap: nowrap; }
+    .btn-action {
+      padding: 7px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .log-area { min-width: 100px; }
+    .log-box { height: 44px; font-size: 10px; }
+
+    /* Popups – full-width on mobile */
+    .turn-popup-box { width: 240px; padding: 18px 24px; }
+    .turn-popup-name { font-size: 26px; }
+    .card-confirm-box { width: 240px; padding: 16px 18px; }
+    .water-result-box { width: 260px; padding: 14px 16px; }
+    .win-box { padding: 28px 24px; max-width: 90vw; }
+    .win-kanji { font-size: 52px; }
+  }
+  /* ===== WATER CARD DECK (above board) ===== */
+  .board-card-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-bottom: 6px;
+    padding-left: 28px; /* align with board left edge (direction label width) */
+  }
+
+  .board-dice-block {
+    position: absolute;
+    /* Center over column 7 (3rd from right, 0-indexed col 6).
+       board-container: direction-label(28px) + board padding(8px) + col6-center = 28+8+6*55+26 = 392px from left.
+       Block width ~110px → left = 392 - 55 = 337px */
+    left: 339px;
+    top: 26px;
+    width: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .board-actions-left {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    color: #ccc;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+  }
+  .board-actions-left span {
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 900;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .water-card-deck-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .wcard-deck-stack {
+    position: relative;
+    width: 70px;
+    height: 98px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .wcard-deck-stack:hover { transform: translateY(-3px); }
+  /* Stack shadow layers */
+  .wcard-deck-stack::before,
+  .wcard-deck-stack::after {
+    content: '';
+    position: absolute;
+    border-radius: 7px;
+    background: #1a5a20;
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .wcard-deck-stack::before { inset: 4px -4px -4px 4px; z-index: 0; }
+  .wcard-deck-stack::after  { inset: 2px -2px -2px 2px; z-index: 1; }
+
+  .wcard-deck-count {
+    font-size: 11px;
+    color: #aaa;
+    font-family: 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  .wcard-flipped-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Water card base */
+  .wcard {
+    width: 70px;
+    height: 98px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+
+  /* BACK face - green mottled texture with white kanji */
+  .wcard-back {
+    background:
+      radial-gradient(ellipse at 30% 25%, rgba(80,160,60,0.7) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 70%, rgba(20,90,20,0.8) 0%, transparent 45%),
+      radial-gradient(ellipse at 55% 40%, rgba(60,130,40,0.5) 0%, transparent 35%),
+      radial-gradient(ellipse at 20% 80%, rgba(40,110,30,0.6) 0%, transparent 40%),
+      linear-gradient(160deg, #1a5a18 0%, #0d3d0d 50%, #1a5a18 100%);
+    border: 2px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+  }
+
+  .wcard-back-inner {
+    display: flex;
+    flex-direction: row-reverse; /* 右から左へ：湧き水が右列、カードが左列 */
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    gap: 2px;
+    padding: 6px 5px 16px;
+  }
+
+  .wcard-back-col {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    white-space: nowrap;
+  }
+
+  .wcard-back-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.15;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    letter-spacing: 0.02em;
+  }
+  .wcard-back-title small {
+    font-size: 8px;
+    vertical-align: super;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+
+  .wcard-back-sub {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 5.5px;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    text-align: center;
+    position: absolute;
+    bottom: 5px;
+    left: 0; right: 0;
+  }
+
+  /* FRONT face - white background with kanji */
+  .wcard-front {
+    background: white;
+    border: 2px solid #ddd;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .wcard-front.wcard-empty {
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(255,255,255,0.2);
+    flex-direction: column;
+  }
+
+  /* Direction kanji on front cards */
+  .wcard-dir-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Single-direction: centered */
+  .wcard-kanji-single {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: 38px;
+    line-height: 1;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+    -webkit-text-stroke: 2px rgba(0,0,0,0.9);
+  }
+  /* Multi-direction layout */
+  .wcard-kanji-multi {
+    position: absolute;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: 26px;
+    line-height: 1;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.12);
+    -webkit-text-stroke: 1.5px rgba(0,0,0,0.85);
+  }
+  /* 不発 special */
+  .wcard-dud-text {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: #111;
+    text-align: center;
+    line-height: 1.15;
+    -webkit-text-stroke: 0.5px #000;
+  }
+  .wcard-dud-en {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 6.5px;
+    color: #444;
+    text-align: center;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Card flip animation */
+  .wcard-flip-anim {
+    animation: cardFlip 0.45s ease-in-out;
+  }
+  @keyframes cardFlip {
+    0%   { transform: rotateY(0deg) scale(1); }
+    45%  { transform: rotateY(90deg) scale(0.95); }
+    55%  { transform: rotateY(-90deg) scale(0.95); }
+    100% { transform: rotateY(0deg) scale(1); }
+  }
+
+  /* Card confirmation popup */
+  .card-confirm-overlay {
+    display: none;
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 160;
+  }
+  .card-confirm-overlay.show { display: block; }
+  .card-confirm-box {
+    background: #0a1a0a;
+    border: 2px solid rgba(43,181,216,0.6);
+    border-radius: 16px;
+    padding: 22px 28px;
+    text-align: center;
+    width: 280px;
+    box-shadow: 0 0 24px rgba(43,181,216,0.3), 0 4px 20px rgba(0,0,0,0.9);
+  }
+  .card-confirm-preview {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  /* preview shows back card */
+  .card-confirm-preview .wcard { transform: scale(1.3); }
+  .card-confirm-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #8ae0ff;
+    margin-bottom: 6px;
+  }
+  .card-confirm-sub {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+  }
+  .card-confirm-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .btn-confirm-yes {
+    background: linear-gradient(135deg, #1a7a8a, #2aacbe);
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-confirm-yes:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .btn-confirm-no {
+    background: rgba(255,255,255,0.08);
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-confirm-no:hover { border-color: #fff; color: #fff; }
+  /* ===== TOOLTIP POPUP ===== */
+  #gameTooltip {
+    position: fixed;
+    z-index: 500;
+    pointer-events: none;
+    max-width: 220px;
+    background: rgba(10, 20, 10, 0.88);
+    border: 1px solid rgba(170, 221, 68, 0.45);
+    border-radius: 10px;
+    padding: 10px 13px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  #gameTooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tip-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #aadd44;
+    margin-bottom: 5px;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(170,221,68,0.25);
+    padding-bottom: 4px;
+  }
+  .tip-body {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: #d0e8d0;
+    line-height: 1.65;
+  }
+  .tip-body b {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .tip-tag {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(170,221,68,0.18);
+    color: #aadd44;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  /* ===== WATER RESULT POPUP ===== */
+  .water-result-overlay {
+    display: none;
+    position: fixed;
+    /* 背景グレーアウトなし・右下に小さく表示 */
+    right: 12px;
+    bottom: 12px;
+    z-index: 170;
+    pointer-events: none;
+  }
+  .water-result-overlay.show { display: block; }
+  .water-result-box {
+    pointer-events: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .water-result-box {
+    background: #071820;
+    border: 2px solid var(--water);
+    border-radius: 14px;
+    padding: 18px 24px 18px;
+    width: 300px;
+    box-shadow: 0 0 24px rgba(43,181,216,0.35), 0 4px 20px rgba(0,0,0,0.9);
+    text-align: center;
+  }
+
+  /* Card display at top */
+  .wr-card-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .wr-card-display .wcard {
+    width: 100px;
+    height: 140px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  .wr-card-display .wcard-kanji-single { font-size: 54px; }
+  .wr-card-display .wcard-kanji-multi  { font-size: 38px; }
+  .wr-card-display .wcard-dud-text     { font-size: 30px; }
+  .wr-card-display .wcard-dud-en       { font-size: 9px; }
+
+  /* Headline row: card direction label + "方向に水が流れました" inline */
+  .wr-headline-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .wr-dir-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+  .wr-flow-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .wr-dud-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #888;
+    margin-bottom: 14px;
+  }
+
+  /* Score results list */
+  .wr-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .wr-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 8px 14px;
+    border-left: 4px solid var(--row-color, #aaa);
+  }
+  .wr-score-name {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--row-color, #eee);
+  }
+  .wr-score-detail {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 1px;
+  }
+  .wr-score-pts {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .wr-pts-label { font-size: 12px; color: #aaa; }
+
+  /* No score */
+  .wr-no-score {
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  /* Close button */
+  .wr-close-btn {
+    background: linear-gradient(135deg, #1a7a8a, #2aacbe);
+    color: white;
+    border: none;
+    padding: 10px 40px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .wr-close-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
+  /* ===== MODE SELECTION ===== */
+  .mode-select-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .mode-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 12px 8px;
+    border: 2px solid #2a5a20;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-btn:hover { border-color: #4aaa40; background: rgba(30,80,20,0.5); }
+  .mode-btn.selected {
+    border-color: #aadd44;
+    background: rgba(30,80,20,0.7);
+    box-shadow: 0 0 10px rgba(170,221,68,0.3);
+  }
+  .mode-btn-icon { font-size: 22px; line-height: 1; }
+  .mode-btn-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+  }
+  .mode-btn-sub {
+    font-size: 10px;
+    color: #88aa88;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .mode-btn.selected .mode-btn-label { color: #aadd44; }
+  .mode-btn.selected .mode-btn-sub   { color: #88cc88; }
+
+  .setup-sub-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    color: #88aa88;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* CPU badge on player card */
+  .cpu-badge {
+    display: inline-block;
+    font-size: 9px;
+    background: rgba(160,80,220,0.3);
+    border: 1px solid rgba(200,120,255,0.5);
+    color: #cc88ff;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 4px;
+    vertical-align: middle;
+    font-family: 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.05em;
+  }
+  .difficulty-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .diff-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
+    border: 2px solid #2a5a20;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .diff-btn:hover { border-color: #4aaa40; background: rgba(30,80,20,0.5); }
+  .diff-btn.selected {
+    border-color: #aadd44;
+    background: rgba(30,80,20,0.7);
+    box-shadow: 0 0 10px rgba(170,221,68,0.3);
+  }
+  .diff-icon { font-size: 18px; line-height: 1; }
+  .diff-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+  .diff-sub {
+    font-size: 9px;
+    color: #88aa88;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .diff-btn.selected .diff-label { color: #aadd44; }
+  .diff-btn.selected .diff-sub   { color: #88cc88; }
+  /* ===== GAME SPEED ===== */
+  .speed-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .speed-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
+    border: 2px solid #2a5a20;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .speed-btn:hover { border-color: #4aaa40; background: rgba(30,80,20,0.5); }
+  .speed-btn.selected { border-color: #aadd44; background: rgba(30,80,20,0.7); box-shadow: 0 0 10px rgba(170,221,68,0.3); }
+  .speed-icon { font-size: 16px; line-height: 1; }
+  .speed-label { font-family: 'Noto Serif JP', serif; font-size: 11px; font-weight: 700; color: white; }
+  .speed-sub   { font-size: 9px; color: #88aa88; font-family: 'Noto Sans JP', sans-serif; }
+  .speed-btn.selected .speed-label { color: #aadd44; }
+  .speed-btn.selected .speed-sub   { color: #88cc88; }
+
+  /* ===== PLAYER ACTION HIGHLIGHT ===== */
+  /* Chip placed by a player gets their colored border */
+  .cell-player-highlight {
+    position: absolute;
+    inset: -2px;
+    border-radius: 5px;
+    pointer-events: none;
+    box-shadow: 0 0 0 3px var(--ph-color, white), 0 0 10px var(--ph-glow, rgba(255,255,255,0.4));
+    animation: playerHighlightFade 2.5s ease-out forwards;
+    z-index: 20;
+  }
+  @keyframes playerHighlightFade {
+    0%   { opacity: 1; box-shadow: 0 0 0 3px var(--ph-color), 0 0 16px var(--ph-glow); }
+    60%  { opacity: 1; box-shadow: 0 0 0 3px var(--ph-color), 0 0 10px var(--ph-glow); }
+    100% { opacity: 0; box-shadow: 0 0 0 2px var(--ph-color), 0 0 0 var(--ph-glow); }
+  }
+  /* Persistent border on placed chips (stays until removed) */
+  .cell-chip-border {
+    position: absolute;
+    inset: -2px;
+    border-radius: 5px;
+    pointer-events: none;
+    border: 2.5px solid var(--ph-color, rgba(255,255,255,0.3));
+    z-index: 5;
+  }
+  /* 手持ちチップ回転ボタン */
+  .chip-rotate-btns {
+    display: none;
+    gap: 4px;
+    margin-top: 4px;
+    align-items: center;
+  }
+  .chip-rotate-btns.show { display: flex; }
+  .chip-rotate-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    border-radius: 5px;
+    padding: 3px 0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1;
+  }
+  .chip-rotate-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.08); }
+  .chip-rotate-label {
+    font-size: 9px;
+    color: #aaa;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    padding: 0 2px;
+  }
+  /* ===== BOARD CHIP INLINE ROTATE CONTROL ===== */
+  /* セルの上に重なるコントロール（オーバーレイなし） */  /* ===== BOARD CHIP INLINE ROTATE CONTROL ===== */
+  #boardRotateControl {
+    display: none;
+    position: fixed;
+    z-index: 300;
+    align-items: center;
+    gap: 6px;
+    pointer-events: auto;
+    filter: drop-shadow(0 3px 12px rgba(0,0,0,0.7));
+  }
+  #boardRotateControl.show { display: flex; }
+
+  .brc-cell-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 7px;
+    border: 3px solid #aadd44;
+    box-shadow: 0 0 12px rgba(170,221,68,0.6);
+    pointer-events: none;
+    z-index: 20;
+    animation: brcRingPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes brcRingPulse {
+    0%,100% { box-shadow: 0 0 8px rgba(170,221,68,0.5); }
+    50%      { box-shadow: 0 0 18px rgba(170,221,68,0.9); }
+  }
+
+  .brc-rot-btn {
+    background: rgba(240,240,240,0.92);
+    border: none;
+    color: #222;
+    border-radius: 8px;
+    width: 40px; height: 40px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .brc-rot-btn:hover { background: white; transform: scale(1.12) rotate(30deg); }
+  .brc-rot-btn:active { transform: scale(0.95); }
+
+  .brc-confirm-btn {
+    background: #aadd44;
+    border: none;
+    color: #1a3a1a;
+    border-radius: 8px;
+    padding: 0 14px; height: 40px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .brc-confirm-btn:hover { background: #ccff44; transform: scale(1.05); }
+
+</style>
+<body>
+<div id="app">
+
+<!-- ========== TITLE SCREEN ========== -->
+<div id="titleScreen" class="screen active">
+  <div class="title-layout">
+
+    <!-- LEFT: green brand panel -->
+    <div class="title-left">
+      <div class="bamboo-illustration">
+        <div class="bamboo-cane"></div>
+        <div class="bamboo-cane"></div>
+        <div class="bamboo-cane"></div>
+      </div>
+
+      <div class="wagames-badge">
+        <div class="wagames-ja"><span>和</span>ゲームス</div>
+        <div class="wagames-en">WaGames</div>
+      </div>
+
+      <div class="title-center-block">
+        <div class="title-label-sm">和風ボードゲーム</div>
+        <div class="title-main-jp">鹿威し－シシオドシ－</div>
+        <div class="title-main-en">Shishi-Odoshi</div>
+      </div>
+
+      <div class="title-specs">
+        <div class="spec-line">プレイ時間：10〜30分</div>
+        <div class="spec-line-en">- Times 10-30 -</div>
+        <div class="spec-line">プレイ人数：2〜4名（4名推奨）</div>
+        <div class="spec-line-en">- Players 2-4 -</div>
+        <div class="spec-line">対象年齢：10歳以上</div>
+        <div class="spec-line-en">- Ages 10+ -</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: image + catchphrase + setup -->
+    <div class="title-right">
+      <!-- Bamboo photo area (CSS art) -->
+      <div class="bamboo-photo">
+        <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Background atmosphere -->
+          <defs>
+            <radialGradient id="bgGrad" cx="60%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#3a6020" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#050d03" stop-opacity="1"/>
+            </radialGradient>
+            <linearGradient id="caneGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#2a5010"/>
+              <stop offset="30%" stop-color="#5a9030"/>
+              <stop offset="60%" stop-color="#7ab840"/>
+              <stop offset="100%" stop-color="#3a6818"/>
+            </linearGradient>
+            <linearGradient id="caneGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#1a3808"/>
+              <stop offset="40%" stop-color="#4a7828"/>
+              <stop offset="100%" stop-color="#2a5010"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="340" fill="url(#bgGrad)"/>
+          <!-- bokeh circles (blurred background foliage) -->
+          <circle cx="320" cy="60" r="50" fill="#3a6020" opacity="0.3"/>
+          <circle cx="80" cy="200" r="40" fill="#2a5010" opacity="0.2"/>
+          <circle cx="350" cy="280" r="60" fill="#4a7828" opacity="0.2"/>
+          <!-- Main bamboo cane (large, tilted) -->
+          <g transform="rotate(-8, 200, 170)">
+            <rect x="148" y="-20" width="72" height="380" rx="6" fill="url(#caneGrad1)"/>
+            <!-- nodes -->
+            <rect x="148" y="60" width="72" height="8" rx="3" fill="#1a4008" opacity="0.8"/>
+            <rect x="148" y="130" width="72" height="8" rx="3" fill="#1a4008" opacity="0.8"/>
+            <rect x="148" y="200" width="72" height="8" rx="3" fill="#1a4008" opacity="0.8"/>
+            <rect x="148" y="270" width="72" height="8" rx="3" fill="#1a4008" opacity="0.8"/>
+            <!-- highlight -->
+            <rect x="165" y="-20" width="12" height="380" rx="3" fill="rgba(255,255,255,0.12)"/>
+            <!-- hollow end (top cut) -->
+            <ellipse cx="184" cy="-20" rx="36" ry="10" fill="#0a2005"/>
+            <ellipse cx="184" cy="-18" rx="30" ry="7" fill="#060f02"/>
+          </g>
+          <!-- Second thinner cane behind -->
+          <g transform="rotate(4, 80, 170)">
+            <rect x="50" y="30" width="44" height="340" rx="4" fill="url(#caneGrad2)" opacity="0.7"/>
+            <rect x="50" y="100" width="44" height="6" rx="2" fill="#0a2005" opacity="0.7"/>
+            <rect x="50" y="190" width="44" height="6" rx="2" fill="#0a2005" opacity="0.7"/>
+            <rect x="50" y="280" width="44" height="6" rx="2" fill="#0a2005" opacity="0.7"/>
+            <rect x="60" y="30" width="7" height="340" rx="2" fill="rgba(255,255,255,0.08)"/>
+          </g>
+          <!-- Water droplets -->
+          <g opacity="0.9">
+            <ellipse cx="200" cy="295" rx="28" ry="6" fill="#2bb5d8" opacity="0.3"/>
+            <path d="M200,245 Q198,265 196,275 Q194,285 200,295 Q206,285 204,275 Q202,265 200,245Z" fill="#8addf8" opacity="0.8"/>
+            <path d="M200,268 Q199,278 198,284 Q197,290 200,295 Q203,290 202,284 Q201,278 200,268Z" fill="white" opacity="0.5"/>
+            <!-- ripple rings -->
+            <ellipse cx="200" cy="316" rx="14" ry="4" fill="none" stroke="#2bb5d8" stroke-width="1.5" opacity="0.5"/>
+            <ellipse cx="200" cy="318" rx="24" ry="6" fill="none" stroke="#2bb5d8" stroke-width="1" opacity="0.3"/>
+            <ellipse cx="200" cy="320" rx="36" ry="8" fill="none" stroke="#2bb5d8" stroke-width="0.5" opacity="0.2"/>
+          </g>
+          <!-- Leaf silhouettes -->
+          <path d="M290,80 Q320,60 340,90 Q310,95 290,80Z" fill="#4a8828" opacity="0.6"/>
+          <path d="M60,140 Q30,120 20,155 Q50,158 60,140Z" fill="#3a7020" opacity="0.5"/>
+          <path d="M310,180 Q345,165 355,195 Q322,198 310,180Z" fill="#4a8828" opacity="0.4"/>
+        </svg>
+
+        <div class="catchphrase">
+          <span class="catch-line1">対立か？</span>
+          <span class="catch-line2">協力か？</span>
+          <span class="catch-en">-Opposition? or Cooperation?-</span>
+        </div>
+      </div>
+
+      <!-- Setup -->
+      <div class="setup-panel">
+        <h2>ゲームモードを選んでください</h2>
+
+        <!-- Step 1: Mode -->
+        <div class="mode-select-row" id="modeSelectRow">
+          <button class="mode-btn" id="modeBtnHuman" onclick="selectMode('human')">
+            <span class="mode-btn-icon">👥</span>
+            <span class="mode-btn-label">人間のみ</span>
+            <span class="mode-btn-sub">2〜4人で対戦</span>
+          </button>
+          <button class="mode-btn" id="modeBtnCPU" onclick="selectMode('cpu')">
+            <span class="mode-btn-icon">🤖</span>
+            <span class="mode-btn-label">CPU対戦</span>
+            <span class="mode-btn-sub">1人でCPUと対戦</span>
+          </button>
+        </div>
+
+        <!-- Step 2: Count -->
+        <div id="countSelectArea" style="margin-top:14px;">
+          <div class="setup-sub-label" id="countLabel">プレイ人数を選んでください</div>
+          <div class="player-count-select" id="countBtns"></div>
+          <div class="player-colors" id="colorTags"></div>
+        </div>
+
+        <!-- Step 3: CPU Difficulty (CPU mode only) -->
+        <div id="difficultyArea" style="display:none; margin-top:12px;">
+          <div class="setup-sub-label">CPU難易度</div>
+          <div class="difficulty-row">
+            <button class="diff-btn" id="diffBtnEasy"   onclick="selectDifficulty('easy')">
+              <span class="diff-icon">🌱</span>
+              <span class="diff-label">かんたん</span>
+              <span class="diff-sub">ランダム配置</span>
+            </button>
+            <button class="diff-btn selected" id="diffBtnNormal" onclick="selectDifficulty('normal')">
+              <span class="diff-icon">🎋</span>
+              <span class="diff-label">ふつう</span>
+              <span class="diff-sub">水路を優先</span>
+            </button>
+            <button class="diff-btn" id="diffBtnHard"   onclick="selectDifficulty('hard')">
+              <span class="diff-icon">🏯</span>
+              <span class="diff-label">むずかしい</span>
+              <span class="diff-sub">経路を読む</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Game Speed (CPU mode only) -->
+        <div id="speedArea" style="display:none; margin-top:10px;">
+          <div class="setup-sub-label">ゲームスピード</div>
+          <div class="speed-row">
+            <button class="speed-btn" id="speedBtnSlow" onclick="selectSpeed('slow')">
+              <span class="speed-icon">🐢</span>
+              <span class="speed-label">ゆっくり</span>
+              <span class="speed-sub">2秒間隔</span>
+            </button>
+            <button class="speed-btn selected" id="speedBtnNormal" onclick="selectSpeed('normal')">
+              <span class="speed-icon">🎋</span>
+              <span class="speed-label">ふつう</span>
+              <span class="speed-sub">1秒間隔</span>
+            </button>
+            <button class="speed-btn" id="speedBtnFast" onclick="selectSpeed('fast')">
+              <span class="speed-icon">⚡</span>
+              <span class="speed-label">はやい</span>
+              <span class="speed-sub">0.4秒間隔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Glow setting (always shown) -->
+        <!-- 手番数設定 (常時表示) -->
+        <div id="handCountArea" style="margin-top:10px;">
+          <div class="setup-sub-label">1ターンの手番数</div>
+          <div class="speed-row">
+            <button class="speed-btn selected" id="handBtnDice" onclick="selectHandCount('dice')">
+              <span class="speed-icon">🎲</span>
+              <span class="speed-label">サイコロ</span>
+              <span class="speed-sub">1〜3手をランダム</span>
+            </button>
+            <button class="speed-btn" id="handBtn1" onclick="selectHandCount('1')">
+              <span class="speed-icon">1</span>
+              <span class="speed-label">1手番</span>
+              <span class="speed-sub">毎ターン必ず1手</span>
+            </button>
+            <button class="speed-btn" id="handBtn2" onclick="selectHandCount('2')">
+              <span class="speed-icon">2</span>
+              <span class="speed-label">2手番</span>
+              <span class="speed-sub">毎ターン必ず2手</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="glowArea" style="margin-top:10px;">
+          <div class="setup-sub-label">チップ枠の表示</div>
+          <div class="speed-row">
+            <button class="speed-btn" id="glowBtnNone" onclick="selectGlow('none')">
+              <span class="speed-icon">🚫</span>
+              <span class="speed-label">なし</span>
+              <span class="speed-sub">枠を表示しない</span>
+            </button>
+            <button class="speed-btn selected" id="glowBtnAction" onclick="selectGlow('action')">
+              <span class="speed-icon">✨</span>
+              <span class="speed-label">アクション時</span>
+              <span class="speed-sub">置いた瞬間に光る</span>
+            </button>
+            <button class="speed-btn" id="glowBtnAlways" onclick="selectGlow('always')">
+              <span class="speed-icon">🔲</span>
+              <span class="speed-label">常時表示</span>
+              <span class="speed-sub">誰が置いたか常に枠</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="setup-btns" style="margin-top:12px;">
+          <button class="btn-start" onclick="startGame()">ゲームスタート</button>
+          <button class="btn-rules" onclick="showRules()">📖 ルール説明</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== RULES MODAL ========== -->
+<div class="modal-overlay" id="rulesModal">
+  <div class="modal-box">
+    <h2>🎋 シシオドシ ルール</h2>
+    <h3>🎯 目的</h3>
+    <p>日本庭園型のゲーム盤に「竹筒チップ」を置き、中央の「湧き水」から自分の「シシオドシ」に水を流す。先に <strong>10点</strong> 獲得したプレイヤーが勝利！</p>
+    
+    <h3>🗾 ボードの構成（9×9マス）</h3>
+    <p>• <span style="color:var(--water)">■ 湧き水（水色）</span>: 中央3×3エリア。水の源</p>
+    <p>• <span style="color:#c0c0c0">■ 砂利エリア（灰色）</span>: 湧き水周囲</p>
+    <p>• <span style="color:var(--lawn)">■ 芝エリア（黄緑）</span>: その外周</p>
+    <p>• <span style="color:var(--azalea)">■ つつじエリア（緑）</span>: さらに外側</p>
+    <p>• <span style="color:var(--cherry)">■ 桜エリア（ピンク）</span>: 最外周</p>
+
+    <h3>👥 プレイヤーとシシオドシ</h3>
+    <p>赤（北）・青（東）・黄（南）・紫（西）の4方向。各プレイヤーに1点・2点・3点のシシオドシが3個。2人プレイ時は赤（北）vs 黄（南）の対戦。</p>
+    <p>「スタンダード配置」では各自の芝エリア辺中央に初期配置済み。</p>
+
+    <h3>🎲 ターンの流れ</h3>
+    <p>① サイコロを振る（1・2・3の目のみ）</p>
+    <p>② 出た目が「手数」となり、その回数だけ行動できる</p>
+    <p>③ 各手数で選択：「チップを1枚置く」または「湧き水カードを1枚引く」</p>
+    <p>④ 使った枚数だけ山札から補充。手札を5枚に戻す</p>
+
+    <h3>🎋 竹筒チップ</h3>
+    <p>「I字」「L字」「T字」「十字」の4種類。湧き水・シシオドシ・竹筒チップにのみ繋げて置ける。</p>
+    <p>×2・×3チップは通過時に点数が2倍・3倍になる。</p>
+
+    <h3>🌊 湧き水カード</h3>
+    <p>引くと、中央湧き水からカードに示された方向に水が流れる。繋がっている竹筒チップを通じて、つながっているすべてのシシオドシに点数が入る。</p>
+    <p>「不発」の場合は何も起きない。</p>
+
+    <h3>🔄 回転チップ・💥 破壊チップ</h3>
+    <p>回転チップ：すべての竹筒チップを回転させる。</p>
+    <p>破壊チップ：同じ色の竹筒チップを取り除く（桜エリアには破壊チップなし）。</p>
+
+    <h3>🏆 勝利条件</h3>
+    <p>• 先に10点獲得したプレイヤーが勝利</p>
+    <p>• 山札がなくなったら、その時点で最高得点のプレイヤーが勝利</p>
+    <p>• 同点の場合はゲームを続行し、単独トップになるまで続ける</p>
+
+    <button class="close-btn" onclick="closeRules()">閉じる</button>
+  </div>
+</div>
+
+<!-- ========== GAME SCREEN ========== -->
+<div id="gameScreen" class="screen">
+  <div class="game-layout">
+    <!-- Header -->
+    <div class="game-header">
+      <div class="game-title-small">🎋 鹿威し</div>
+      <div class="turn-info">
+        <div class="turn-label">現在のターン</div>
+        <div class="turn-player-name" id="currentPlayerName">—</div>
+      </div>
+      <button class="btn-menu" onclick="backToTitle()">メニューへ</button>
+    </div>
+
+    <!-- Mobile score strip (visible only on small screens) -->
+    <div class="score-strip" id="scoreStrip" style="display:none;"></div>
+
+    <!-- Left panel: Players 1&2 -->
+    <div class="side-panel" id="leftPanel"></div>
+
+    <!-- Board -->
+    <div class="board-wrapper">
+      <div class="board-container">
+        <!-- Card deck above board -->
+        <div class="board-card-row">
+          <div class="water-card-deck-area">
+            <div class="wcard-deck-stack" id="deckStack" onclick="onDeckClick()"
+              data-tip="water-card">
+              <div class="wcard wcard-back" id="deckTopCard">
+                <div class="wcard-back-inner">
+                  <div class="wcard-back-col">湧き水</div>
+                  <div class="wcard-back-col">カード</div>
+                </div>
+                <div class="wcard-back-sub">-Spring water card-</div>
+              </div>
+            </div>
+            <div class="wcard-deck-count" id="deckCount">20枚</div>
+          </div>
+          <div class="wcard-flipped-area" id="flippedCardArea">
+            <div class="wcard wcard-front wcard-empty" id="flippedCard">
+              <span style="color:#aaa;font-size:11px;">めくり待ち</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dice: absolutely positioned above col 7 (3rd from right) -->
+        <div class="board-dice-block">
+          <div class="dice-face" id="diceFace" onclick="rollDice()" data-tip="dice">🎲</div>
+          <div class="board-actions-left">残り手数 <span id="actionsLeft">0</span></div>
+        </div>
+
+        <div class="direction-label dir-N">北</div>
+        <div class="board-row-wrapper">
+          <div class="direction-label dir-W" style="writing-mode:vertical-rl; height:auto; width:30px; text-align:center; font-size:22px;">西</div>
+          <div id="board"></div>
+          <div class="direction-label dir-E" style="writing-mode:vertical-rl; height:auto; width:30px; text-align:center; font-size:22px;">東</div>
+        </div>
+        <div class="direction-label dir-S">南</div>
+      </div>
+    </div>
+
+    <!-- Right panel: Players 3&4 -->
+    <div class="side-panel" id="rightPanel"></div>
+
+    <!-- Footer -->
+    <!-- Action buttons and log: hidden but kept for JS references -->
+    <div style="display:none">
+      <button id="btnPlace" onclick="togglePlaceMode()" disabled></button>
+      <button id="btnCard" onclick="onDeckClick()" disabled></button>
+      <button id="btnRotate" onclick="useRotateChip()" disabled></button>
+      <button id="btnDestroy" onclick="toggleDestroyMode()" disabled></button>
+      <button id="btnEndTurn" onclick="endTurn()" disabled></button>
+      <div id="logBox"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mode badge -->
+<div class="mode-badge" id="modeBadge">
+  <div class="mode-badge-title" id="modeBadgeTitle">配置モード</div>
+  <div class="mode-badge-hint">マスをクリックして竹筒を置く（Escでキャンセル）</div>
+</div>
+
+<!-- Card draw confirm popup -->
+<div class="card-confirm-overlay" id="cardConfirmOverlay">
+  <div class="card-confirm-box">
+    <div class="card-confirm-preview">
+      <div class="wcard wcard-back">
+        <div class="wcard-back-inner">
+          <div class="wcard-back-col">湧き水</div>
+          <div class="wcard-back-col">カード</div>
+        </div>
+        <div class="wcard-back-sub">-Spring water card-</div>
+      </div>
+    </div>
+    <div class="card-confirm-title">湧き水カードを引きますか？</div>
+    <div class="card-confirm-sub">残り <span id="confirmDeckCount">—</span> 枚 • アクション1回消費</div>
+    <div class="card-confirm-btns">
+      <button class="btn-confirm-yes" onclick="confirmDrawCard()">はい、引く</button>
+      <button class="btn-confirm-no" onclick="cancelDrawCard()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- Turn start popup -->
+<div class="turn-popup-overlay" id="turnPopup" onclick="onTurnPopupClick()">
+  <div class="turn-popup-box" id="turnPopupBox">
+    <div class="turn-popup-label" id="turnPopupLabel">ターン開始</div>
+    <div class="turn-popup-name" id="turnPopupName">—</div>
+    <div class="turn-popup-sub" id="turnPopupSub">クリックしてターンを開始</div>
+  </div>
+</div>
+
+<!-- Win overlay -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-box">
+    <div class="win-kanji" id="winKanji">勝利！</div>
+    <div class="win-result-sub" id="winResultSub"></div>
+    <div class="win-name" id="winName"></div>
+    <div class="win-score" id="winScore"></div>
+    <div class="win-btns">
+      <button class="btn-again" onclick="backToTitle()">メニューへ</button>
+      <button class="btn-review" onclick="reviewGame()">試合ふり返り</button>
+    </div>
+  </div>
+</div>
+
+<!-- Review mode banner (shown when reviewing) -->
+<div class="review-banner" id="reviewBanner" style="display:none">
+  <span>📋 試合ふり返りモード</span>
+  <button onclick="endReview()">ゲーム終了画面に戻る</button>
+</div>
+
+<!-- Water card result popup -->
+<div class="water-result-overlay" id="waterResultOverlay" onclick="event.stopPropagation()">
+  <div class="water-result-box" onclick="event.stopPropagation()">
+    <div class="wr-card-display" id="wrCardDisplay"></div>
+    <div id="wrHeadlineRow"></div>
+    <div class="wr-scores" id="wrScores"></div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <button class="wr-close-btn" id="wrCloseBtn" onclick="closeWaterResult()">つぎへ</button>
+  </div>
+</div>
+
+<!-- Tooltip popup -->
+<div id="gameTooltip">
+  <div class="tip-title" id="tipTitle"></div>
+  <div class="tip-body" id="tipBody"></div>
+</div>
+
+</div><!-- #app -->
+
+<!-- Board chip inline rotate control (outside #app for reliable fixed positioning) -->
+<div id="boardRotateControl">
+  <button class="brc-rot-btn" onclick="boardRotateStep('cw')" title="時計回りに回転">↻</button>
+  <button class="brc-confirm-btn" onclick="confirmBoardRotate()">決定</button>
+</div>
+
+<script>
+// ============================================================
+// GAME STATE
+// ============================================================
+const GRID = 9;
+
+// Board zones: 0=water(center 3x3), 1=gravel, 2=lawn, 3=azalea, 4=cherry
+// Zone map: center (4,4) = water, Chebyshev distance from center:
+// d=0 → water, d=1 → gravel, d=2 → lawn, d=3 → azalea, d=4 → cherry
+const ZONE_MAP = (() => {
+  const m = [];
+  for (let r=0; r<GRID; r++) {
+    m.push([]);
+    for (let c=0; c<GRID; c++) {
+      const d = Math.max(Math.abs(r-4), Math.abs(c-4));
+      if (d === 0) m[r].push('water');
+      else if (d === 1) m[r].push('gravel');
+      else if (d === 2) m[r].push('lawn');
+      else if (d === 3) m[r].push('azalea');
+      else              m[r].push('cherry');
+    }
+  }
+  return m;
+})();
+
+// Player configs
+const PLAYER_CONFIGS = [
+  { id: 0, name: '赤（北）', color: '#e03030', glow: 'rgba(224,48,48,0.4)', cls: 'red-chip',    dir: 'N', side: 0, emoji: '🔴' },
+  { id: 1, name: '青（東）', color: '#2060e0', glow: 'rgba(32,96,224,0.4)',  cls: 'blue-chip',   dir: 'E', side: 1, emoji: '🔵' },
+  { id: 2, name: '黄（南）', color: '#d4a820', glow: 'rgba(212,168,32,0.4)', cls: 'yellow-chip', dir: 'S', side: 1, emoji: '🟡' },
+  { id: 3, name: '紫（西）', color: '#9020c0', glow: 'rgba(144,32,192,0.4)', cls: 'purple-chip', dir: 'W', side: 0, emoji: '🟣' },
+];
+
+// Bamboo chip shapes: directions of connections [N,E,S,W]
+const BAMBOO_SHAPES = {
+  'I-NS':  [true,  false, true,  false],
+  'I-EW':  [false, true,  false, true ],
+  'I2-NS': [true,  false, true,  false],
+  'I2-EW': [false, true,  false, true ],
+  'I3-NS': [true,  false, true,  false],
+  'I3-EW': [false, true,  false, true ],
+  'L-NE':  [true,  true,  false, false],
+  'L-SE':  [false, true,  true,  false],
+  'L-SW':  [false, false, true,  true ],
+  'L-NW':  [true,  false, false, true ],
+  'T-NES': [true,  true,  true,  false],
+  'T-ESW': [false, true,  true,  true ],
+  'T-NSW': [true,  false, true,  true ],
+  'T-NEW': [true,  true,  false, true ],
+  'X':     [true,  true,  true,  true ],
+};
+// Multiplier per chip type
+function chipMultiplier(type) {
+  const shape = chipShape(type);
+  if (shape.startsWith('I2')) return 2;
+  if (shape.startsWith('I3')) return 3;
+  return 1;
+}
+
+// Chip types in hand deck
+// Official 50 bamboo chips with zone assignments:
+// I×1: gravel×2, lawn×2, azalea×2 = 6
+// I×2: gravel×2, lawn×2, azalea×1, cherry×1 = 6  (official counts)
+// I×3: azalea×1, cherry×1 = 2
+// L:   gravel×2, lawn×2, azalea×2, cherry×2 = 8
+// T:   gravel×4, lawn×4, azalea×4, cherry×3 = 15
+// X:   gravel×2, lawn×4, azalea×4, cherry×3 = 13  total=13 → gravel2+lawn4+azalea4+cherry3
+// Total: 6+6+2+8+15+13 = 50 ✓
+
+const BAMBOO_POOL = [
+  // I×1 (6)
+  'I-NS-gravel','I-EW-gravel',
+  'I-NS-lawn','I-EW-lawn',
+  'I-NS-azalea','I-EW-azalea',
+  // I×2 (6)
+  'I2-NS-gravel','I2-EW-gravel',
+  'I2-NS-lawn','I2-EW-lawn',
+  'I2-NS-azalea',
+  'I2-NS-cherry',
+  // I×3 (2)
+  'I3-NS-azalea',
+  'I3-EW-cherry',
+  // L (8)
+  'L-NE-gravel','L-SW-gravel',
+  'L-SE-lawn','L-NW-lawn',
+  'L-NE-azalea','L-SW-azalea',
+  'L-SE-cherry','L-NW-cherry',
+  // T (15)
+  'T-NES-gravel','T-ESW-gravel','T-NSW-gravel','T-NEW-gravel',
+  'T-NES-lawn','T-ESW-lawn','T-NSW-lawn','T-NEW-lawn',
+  'T-NES-azalea','T-ESW-azalea','T-NSW-azalea','T-NEW-azalea',
+  'T-NES-cherry','T-ESW-cherry','T-NSW-cherry',
+  // X (13)
+  'X-gravel','X-gravel',
+  'X-lawn','X-lawn','X-lawn','X-lawn',
+  'X-azalea','X-azalea','X-azalea','X-azalea',
+  'X-cherry','X-cherry','X-cherry',
+];
+const ROTATE_POOL = Array(10).fill('rotate');
+// 破壊チップ: 砂利×3, 芝×3, つつじ×3 (桜なし)
+const DESTROY_POOL = [
+  'destroy-gravel','destroy-gravel','destroy-gravel',
+  'destroy-lawn','destroy-lawn','destroy-lawn',
+  'destroy-azalea','destroy-azalea','destroy-azalea',
+];
+const CHIP_TYPES = [...BAMBOO_POOL, ...ROTATE_POOL, ...DESTROY_POOL];
+
+// Extract shape and zone from chip key like 'I-NS-lawn' or 'destroy-gravel'
+function chipShape(type) {
+  if (type === 'rotate') return 'rotate';
+  if (type.startsWith('destroy')) return 'destroy';
+  const parts = type.split('-');
+  return parts.slice(0, -1).join('-');
+}
+function chipZone(type) {
+  if (type === 'rotate') return null;
+  if (type.startsWith('destroy-')) return type.split('-')[1];
+  if (type.startsWith('destroy')) return null;
+  return type.split('-').slice(-1)[0];
+}
+
+// Game state
+let G = {};
+
+function initGame(numPlayers) {
+  // Build player list based on mode
+  // CPU mode: player[0]=human赤(北), rest=CPU (黄南, 青東, 紫西)
+  // Human 2p: 赤(北) vs 黄(南)
+  // Human 3-4p: 赤青黄紫 in order
+
+  let cfgList;
+  if (selectedMode === 'cpu') {
+    // 時計回り: 北→東→南→西。人間=赤（北）、残りCPU
+    const clockwise = [PLAYER_CONFIGS[0], PLAYER_CONFIGS[1], PLAYER_CONFIGS[2], PLAYER_CONFIGS[3]];
+    cfgList = clockwise.slice(0, numPlayers).map((cfg, i) => ({
+      ...cfg,
+      side: i % 2 === 0 ? 0 : 1,
+      isHuman: i === 0,
+    }));
+  } else if (numPlayers === 2) {
+    cfgList = [
+      { ...PLAYER_CONFIGS[0], side: 0, isHuman: true },
+      { ...PLAYER_CONFIGS[2], side: 1, isHuman: true },
+    ];
+  } else {
+    cfgList = PLAYER_CONFIGS.slice(0, numPlayers).map((cfg, i) => ({
+      ...cfg,
+      isHuman: true,
+    }));
+  }
+
+  const players = cfgList.map(cfg => ({
+    ...cfg,
+    score: 0,
+    hand: [],
+  }));
+
+  // Build chip pool and deal 5 to each player
+  let pool = [];
+  for (let i=0; i<4; i++) pool.push(...CHIP_TYPES);
+  pool = shuffle(pool);
+
+  players.forEach(p => {
+    p.hand = pool.splice(0, 5);
+  });
+
+  // Board state
+  const board = [];
+  for (let r=0; r<GRID; r++) {
+    board.push([]);
+    for (let c=0; c<GRID; c++) {
+      board[r].push({ zone: ZONE_MAP[r][c], bamboo: null, shishi: null });
+    }
+  }
+
+  // Board orientation: top=NORTH, left=WEST, right=EAST, bottom=SOUTH
+  // Player order in CPU mode: [赤北(human), 黄南(CPU), 青東(CPU), 紫西(CPU)]
+  // Player order in Human 2p: [赤北, 黄南]
+  // Player order in Human 3-4p: [赤北, 青東, 黄南, 紫西]
+
+  // Helper: place shishi for a player index given their PLAYER_CONFIG id
+  const cfgIds = cfgList.map(c => c.id);
+
+  // Shishi positions by original player config id
+  const shishiByConfigId = {
+    0: [ // 赤（北）
+      { r:2, c:4, pts:1 }, { r:3, c:7, pts:2 }, { r:8, c:3, pts:3 }
+    ],
+    1: [ // 青（東）
+      { r:4, c:6, pts:1 }, { r:7, c:5, pts:2 }, { r:3, c:0, pts:3 }
+    ],
+    2: [ // 黄（南）
+      { r:6, c:4, pts:1 }, { r:5, c:1, pts:2 }, { r:0, c:5, pts:3 }
+    ],
+    3: [ // 紫（西）
+      { r:4, c:2, pts:1 }, { r:1, c:3, pts:2 }, { r:5, c:8, pts:3 }
+    ],
+  };
+
+  cfgIds.forEach((cfgId, playerIdx) => {
+    shishiByConfigId[cfgId].forEach(({ r, c, pts }) => {
+      board[r][c].shishi = { player: playerIdx, points: pts };
+    });
+  });
+
+  // Water cards deck
+  const cardDirs = ['N','E','S','W','NE','NW','SE','SW','NS','EW','NEWS','dud','dud','dud','dud','dud'];
+  const waterCards = shuffle([...cardDirs, ...cardDirs].slice(0, 20));
+
+  G = {
+    players,
+    board,
+    chipPool: pool,
+    waterCards,
+    currentPlayer: 0,
+    numPlayers,
+    diceValue: 0,
+    actionsLeft: 0,
+    phase: 'roll',
+    selectedChip: null,
+    selectedChipIdx: null,
+    mode: null,
+    rotateTargetChipIdx: null,
+    lastCard: null,
+    gameOver: false,
+    _deckEmpty: false,
+    _pendingWaterResult: false,
+    cpuDifficulty: selectedDifficulty,
+    cpuSpeed:      selectedSpeed,
+    glowMode:      selectedGlow,
+    handCount:     selectedHandCount,
+  };
+}
+
+function isCurrentCPU() {
+  return G.players[G.currentPlayer] && !G.players[G.currentPlayer].isHuman;
+}
+
+// CPUの遅延時間をスピード設定に応じて返す（ ms ）
+function CPU_DELAY(phase) {
+  const spd = G.cpuSpeed || 'normal';
+  const table = {
+    slow:   { roll: 1800, action: 1600, continue: 1800, end: 900,  card: 4000 },
+    normal: { roll:  900, action:  900, continue:  900, end: 600,  card: 2800 },
+    fast:   { roll:  350, action:  350, continue:  350, end: 250,  card: 1200 },
+  };
+  return (table[spd] || table.normal)[phase] || 900;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+let selectedMode       = 'human';
+let selectedCount      = 4;
+let selectedDifficulty = 'normal'; // 'easy' | 'normal' | 'hard'
+let selectedSpeed      = 'normal'; // 'slow' | 'normal' | 'fast'
+let selectedGlow       = 'action'; // 'none' | 'action' | 'always'
+let selectedHandCount  = 'dice';   // 'dice' | '1' | '2'
+
+function selectMode(mode) {
+  selectedMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(mode === 'human' ? 'modeBtnHuman' : 'modeBtnCPU').classList.add('selected');
+
+  // Show/hide difficulty and speed
+  document.getElementById('difficultyArea').style.display = mode === 'cpu' ? 'block' : 'none';
+  document.getElementById('speedArea').style.display      = mode === 'cpu' ? 'block' : 'none';
+
+  if (mode === 'cpu') {
+    buildCountBtns([2, 3, 4], 4);   // デフォルト: CPU×3（計4人）
+    document.getElementById('countLabel').textContent = 'プレイ人数を選んでください（人間1名＋CPU）';
+  } else {
+    buildCountBtns([2, 3, 4], 4);
+    document.getElementById('countLabel').textContent = 'プレイ人数を選んでください';
+  }
+}
+
+function selectDifficulty(diff) {
+  selectedDifficulty = diff;
+  ['easy','normal','hard'].forEach(d => {
+    document.getElementById(`diffBtn${d.charAt(0).toUpperCase()+d.slice(1)}`).classList.toggle('selected', d === diff);
+  });
+}
+
+function selectSpeed(spd) {
+  selectedSpeed = spd;
+  ['Slow','Normal','Fast'].forEach(s => {
+    document.getElementById(`speedBtn${s}`).classList.toggle('selected', s.toLowerCase() === spd);
+  });
+}
+
+function selectGlow(mode) {
+  selectedGlow = mode;
+  ['None','Action','Always'].forEach(g => {
+    document.getElementById(`glowBtn${g}`).classList.toggle('selected', g.toLowerCase() === mode);
+  });
+}
+
+function selectHandCount(val) {
+  selectedHandCount = val;
+  ['Dice','1','2'].forEach(v => {
+    document.getElementById(`handBtn${v}`).classList.toggle('selected', v.toLowerCase() === val);
+  });
+}
+
+function buildCountBtns(counts, defaultVal) {
+  selectedCount = defaultVal;
+  const el = document.getElementById('countBtns');
+  el.innerHTML = '';
+  counts.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'count-btn' + (n === defaultVal ? ' selected' : '');
+    b.dataset.count = n;
+    b.textContent = n; // シンプルに人数だけ表示
+    b.onclick = () => selectCount(n);
+    el.appendChild(b);
+  });
+  renderColorTags(defaultVal);
+}
+
+function selectCount(n) {
+  selectedCount = n;
+  // data-count属性で正確に選択
+  document.querySelectorAll('.count-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.count) === n);
+  });
+  renderColorTags(n);
+}
+
+function renderColorTags(n) {
+  // 時計回り: 北→東→南→西
+  const allConfigs = [
+    { cls:'red',    name:'赤（北）' },
+    { cls:'blue',   name:'青（東）' },
+    { cls:'yellow', name:'黄（南）' },
+    { cls:'purple', name:'紫（西）' },
+  ];
+
+  let tags = [];
+  if (selectedMode === 'cpu') {
+    // 人間=赤（北）、残りCPU（時計回り）
+    tags = allConfigs.slice(0, n).map((c, i) => ({ ...c, cpu: i > 0 }));
+  } else {
+    // 人間のみ2人は北・南（向かい合い）
+    if (n === 2) {
+      tags = [
+        { cls:'red',    name:'赤（北）', cpu: false },
+        { cls:'yellow', name:'黄（南）', cpu: false },
+      ];
+    } else {
+      tags = allConfigs.slice(0, n).map(c => ({ ...c, cpu: false }));
+    }
+  }
+
+  document.getElementById('colorTags').innerHTML = tags.map(t =>
+    `<span class="color-tag ${t.cls}">${t.name}${t.cpu ? '<span class="cpu-badge">CPU</span>' : ''}</span>`
+  ).join('');
+}
+
+function showRules() { document.getElementById('rulesModal').classList.add('show'); }
+function closeRules() { document.getElementById('rulesModal').classList.remove('show'); }
+
+function startGame() {
+  initGame(selectedCount);
+  showScreen('gameScreen');
+  renderSidePanels();
+  renderBoard();
+  setPhase('roll');
+  addLog('ゲーム開始！', true);
+  if (selectedMode === 'cpu') {
+    const diffNames = { easy:'かんたん', normal:'ふつう', hard:'むずかしい' };
+    addLog(`CPU難易度：${diffNames[selectedDifficulty]}`);
+  }
+  updateUI();
+  // Show turn popup for first player
+  setTimeout(() => showTurnPopup(G.players[G.currentPlayer]), 300);
+  // Initialize static tooltips (deck, dice)
+  setTimeout(initStaticTooltips, 50);
+}
+
+function backToTitle() {
+  showScreen('titleScreen');
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('reviewBanner').style.display = 'none';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'gameScreen' && typeof scaleBoardForMobile === 'function') {
+    setTimeout(scaleBoardForMobile, 100);
+    setTimeout(scaleBoardForMobile, 500);
+  }
+}
+
+selectMode('human');
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderSidePanels() {
+  const left  = document.getElementById('leftPanel');
+  const right = document.getElementById('rightPanel');
+  left.innerHTML  = '';
+  right.innerHTML = '';
+
+  // 左パネル: 北（上）→ 西（下）
+  // 右パネル: 南（上）→ 東（下）
+  // dirの優先順位で並べる
+  const dirOrder = { N:0, S:1, E:2, W:3 };
+  // 左側(side=0): N→W、右側(side=1): S→E
+  const leftOrder  = { N:0, W:1 };
+  const rightOrder = { S:0, E:1 };
+
+  const leftPlayers  = G.players.filter(p => p.side === 0).sort((a,b) => (leftOrder[a.dir]??9) - (leftOrder[b.dir]??9));
+  const rightPlayers = G.players.filter(p => p.side === 1).sort((a,b) => (rightOrder[a.dir]??9) - (rightOrder[b.dir]??9));
+
+  [...leftPlayers, ...rightPlayers].forEach((p, _) => {
+    const i = G.players.indexOf(p);
+    const card = document.createElement('div');
+    card.className = 'player-info-card';
+    card.id = `playerCard${i}`;
+    card.style.setProperty('--player-color', p.color);
+    card.style.setProperty('--player-glow', p.glow);
+    card.innerHTML = `
+      <div class="player-name-row">
+        <div class="player-dot" style="background:${p.color}"></div>
+        <div class="player-card-name">${p.name}${p.isHuman === false ? ' <span style="font-size:10px;opacity:0.6;">CPU</span>' : ''}</div>
+      </div>
+      <div class="score-display" style="color:${p.color}">${p.score}</div>
+      <div class="score-label">点</div>
+      <div class="hand-chips" id="hand${i}"></div>
+      <div class="chip-rotate-btns" id="rotateBtns${i}">
+        <button class="chip-rotate-btn" onclick="rotateSelectedChip('ccw')" title="反時計回り">↺</button>
+        <span class="chip-rotate-label">回転</span>
+        <button class="chip-rotate-btn" onclick="rotateSelectedChip('cw')" title="時計回り">↻</button>
+      </div>
+    `;
+    (p.side === 0 ? left : right).appendChild(card);
+  });
+  updateHandDisplays();
+}
+
+function updateHandDisplays() {
+  G.players.forEach((p, i) => {
+    const handEl = document.getElementById(`hand${i}`);
+    if (!handEl) return;
+    handEl.innerHTML = '';
+    p.hand.forEach((chip, idx) => {
+      const el = document.createElement('div');
+      el.className = `hand-chip ${p.cls}`;
+      el.title = chipName(chip);
+      el.innerHTML = chipSymbol(chip);
+      // Tooltip
+      const shape = chipShape(chip);
+      if (shape === 'rotate') {
+        attachTooltip(el, TOOLTIP_CONTENT.rotate);
+      } else if (shape === 'destroy') {
+        attachTooltip(el, () => TOOLTIP_CONTENT.destroy(chip));
+      } else {
+        attachTooltip(el, () => TOOLTIP_CONTENT.bamboo(chip));
+      }
+      if (i === G.currentPlayer && G.phase === 'action') {
+        el.style.cursor = 'pointer';
+        el.onclick = () => selectChip(i, idx, chip);
+        if (G.selectedChipIdx === idx && G.currentPlayer === i) el.classList.add('selected');
+      }
+      handEl.appendChild(el);
+    });
+  });
+}
+
+// Zone texture SVG backgrounds (matching real chip appearance)
+function zoneBgSVG(zone, sz) {
+  if (zone === 'gravel') {
+    // Gray stone texture with noise patches
+    return `<rect width="${sz}" height="${sz}" rx="4" fill="#c0c0c0"/>` +
+      `<rect width="${sz}" height="${sz}" rx="4" fill="url(#gravel_pat)"/>`;
+  } else if (zone === 'lawn') {
+    return `<rect width="${sz}" height="${sz}" rx="4" fill="#aadd44"/>`;
+  } else if (zone === 'azalea') {
+    // Dark green mottled
+    return `<rect width="${sz}" height="${sz}" rx="4" fill="#2a8a3a"/>` +
+      `<rect width="${sz}" height="${sz}" rx="4" fill="url(#azalea_pat)"/>`;
+  } else if (zone === 'cherry') {
+    // Pink mottled
+    return `<rect width="${sz}" height="${sz}" rx="4" fill="#e888b8"/>` +
+      `<rect width="${sz}" height="${sz}" rx="4" fill="url(#cherry_pat)"/>`;
+  }
+  return `<rect width="${sz}" height="${sz}" rx="4" fill="#aadd44"/>`;
+}
+
+// SVG defs for zone textures (injected once into each SVG)
+function zoneDefs() {
+  return `<defs>
+    <pattern id="gravel_pat" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="8" height="8" fill="none"/>
+      <circle cx="2" cy="2" r="1.5" fill="rgba(255,255,255,0.25)"/>
+      <circle cx="6" cy="5" r="1.2" fill="rgba(0,0,0,0.15)"/>
+      <circle cx="4" cy="7" r="0.9" fill="rgba(255,255,255,0.2)"/>
+      <circle cx="7" cy="1" r="1" fill="rgba(0,0,0,0.1)"/>
+    </pattern>
+    <pattern id="azalea_pat" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="none"/>
+      <ellipse cx="2" cy="3" rx="2.5" ry="1.8" fill="rgba(80,180,60,0.35)"/>
+      <ellipse cx="7" cy="7" rx="2" ry="2.5" fill="rgba(0,60,0,0.3)"/>
+      <ellipse cx="5" cy="1" rx="1.5" ry="1" fill="rgba(120,220,80,0.25)"/>
+      <ellipse cx="9" cy="4" rx="1.2" ry="1.8" fill="rgba(0,80,20,0.2)"/>
+    </pattern>
+    <pattern id="cherry_pat" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="none"/>
+      <ellipse cx="2" cy="3" rx="2.5" ry="1.8" fill="rgba(255,200,220,0.4)"/>
+      <ellipse cx="7" cy="7" rx="2" ry="2.5" fill="rgba(180,60,100,0.2)"/>
+      <ellipse cx="5" cy="1" rx="1.5" ry="1" fill="rgba(255,230,240,0.35)"/>
+      <ellipse cx="9" cy="4" rx="1.2" ry="1.8" fill="rgba(200,80,130,0.15)"/>
+    </pattern>
+  </defs>`;
+}
+
+function chipSymbol(type) {
+  const s = 44, cx = 22, cy = 22;
+  if (type === 'rotate') {
+    return `<svg width="${s}" height="${s}" viewBox="0 0 44 44">${rotateChipSVGInner(44)}</svg>`;
+  }
+  if (type.startsWith('destroy')) {
+    const z = chipZone(type);
+    return `<svg width="${s}" height="${s}" viewBox="0 0 44 44">${destroyChipSVGInner(44, z)}</svg>`;
+  }
+  const shape = chipShape(type);
+  const zone = chipZone(type);
+  const conn = BAMBOO_SHAPES[shape];
+  if (!conn) return '?';
+  const [N,E,S,W] = conn;
+  const mul = chipMultiplier(type);
+  const BK = '#111', DG = '#1a6010', LG = '#7acc30';
+  const TW = 10, MW = 7, HW = 3;
+  function arm(x1,y1,x2,y2) {
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+    const nx=-dy/len,ny=dx/len;
+    const hx=nx*(TW/2-HW/2-1),hy=ny*(TW/2-HW/2-1);
+    return [
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${BK}" stroke-width="${TW}" stroke-linecap="butt"/>`,
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${DG}" stroke-width="${MW}" stroke-linecap="butt"/>`,
+      `<line x1="${x1+hx}" y1="${y1+hy}" x2="${x2+hx}" y2="${y2+hy}" stroke="${LG}" stroke-width="${HW}" stroke-linecap="butt"/>`,
+    ].join('');
+  }
+  let paths = zoneDefs() + zoneBgSVG(zone, s);
+  if (N) paths += arm(cx,cy,cx,0);
+  if (S) paths += arm(cx,cy,cx,s);
+  if (E) paths += arm(cx,cy,s,cy);
+  if (W) paths += arm(cx,cy,0,cy);
+  const jx1=cx-TW/2,jy1=cy-TW/2,jw=TW;
+  paths += `<rect x="${jx1}" y="${jy1}" width="${jw}" height="${jw}" fill="${BK}"/>`;
+  paths += `<rect x="${jx1+1.5}" y="${jy1+1.5}" width="${jw-3}" height="${jw-3}" fill="${DG}"/>`;
+  paths += `<rect x="${jx1+1.5}" y="${jy1+1.5}" width="${HW-1}" height="${jw-3}" fill="${LG}"/>`;
+  if (mul > 1) {
+    const mc = mul === 2 ? '#dd0000' : '#0000cc';
+    paths += `<text x="${s-2}" y="${s-2}" text-anchor="end" dominant-baseline="auto" font-size="13" font-weight="bold" font-family="Arial,sans-serif" fill="${mc}" stroke="white" stroke-width="2" paint-order="stroke">×${mul}</text>`;
+  }
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">${paths}</svg>`;
+}
+
+function chipName(type) {
+  if (type === 'rotate') return '回転チップ';
+  if (type.startsWith('destroy')) {
+    const z = chipZone(type);
+    const zn = { gravel:'砂利', lawn:'芝', azalea:'つつじ', cherry:'桜' };
+    return z ? `破壊チップ[${zn[z]||z}]` : '破壊チップ';
+  }
+  const shape = chipShape(type);
+  const zone = chipZone(type);
+  const zoneNames = { gravel:'砂利', lawn:'芝', azalea:'つつじ', cherry:'桜' };
+  const shapeMap = {
+    'I-NS':'I字(縦)','I-EW':'I字(横)',
+    'I2-NS':'I字×2(縦)','I2-EW':'I字×2(横)',
+    'I3-NS':'I字×3(縦)','I3-EW':'I字×3(横)',
+    'L-NE':'L字(NE)','L-SE':'L字(SE)','L-SW':'L字(SW)','L-NW':'L字(NW)',
+    'T-NES':'T字(NES)','T-ESW':'T字(ESW)','T-NSW':'T字(NSW)','T-NEW':'T字(NEW)',
+    'X':'十字',
+  };
+  return `${shapeMap[shape]||shape}[${zoneNames[zone]||zone}]`;
+}
+
+function renderBoard() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      const cell = document.createElement('div');
+      cell.className = `cell ${G.board[r][c].zone}`;
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.onclick = () => cellClick(r, c);
+      // Tooltip for water source cells
+      if (G.board[r][c].zone === 'water') {
+        attachTooltip(cell, TOOLTIP_CONTENT['water-source']);
+      }
+      renderCellContent(cell, r, c);
+      boardEl.appendChild(cell);
+    }
+  }
+  updatePlaceableHighlights();
+}
+
+// セルにプレイヤーカラーの枠（フラッシュ＋永続ボーダー）を付ける
+function addPlayerHighlight(r, c, playerIdx, persistent) {
+  const glow = G.glowMode || 'action';
+  if (glow === 'none') return; // グローなし設定
+
+  const cel = getCellEl(r, c);
+  if (!cel) return;
+  const p = G.players[playerIdx];
+  if (!p) return;
+
+  // アクション時フラッシュ（'action' or 'always'）
+  const flash = document.createElement('div');
+  flash.className = 'cell-player-highlight';
+  flash.style.setProperty('--ph-color', p.color);
+  flash.style.setProperty('--ph-glow', p.glow);
+  cel.appendChild(flash);
+  setTimeout(() => flash.remove(), 2500);
+
+  // 永続ボーダーは 'always' 設定のときのみ（renderCellContentでも再付与）
+  if (persistent && glow === 'always') {
+    cel.querySelectorAll('.cell-chip-border').forEach(el => el.remove());
+    const border = document.createElement('div');
+    border.className = 'cell-chip-border';
+    border.style.setProperty('--ph-color', p.color);
+    cel.appendChild(border);
+  }
+}
+
+// セルのプレイヤーボーダーを削除（チップ撤去時）
+function removePlayerHighlight(r, c) {
+  const cel = getCellEl(r, c);
+  if (cel) cel.querySelectorAll('.cell-chip-border').forEach(el => el.remove());
+}
+
+function renderCellContent(cell, r, c) {
+  cell.innerHTML = '';
+  // 既存のプレイヤーボーダーを保持（innerHTML消去で消えるので再付与）
+  const bd = G.board[r][c];
+
+  if (bd.shishi) {
+    const p = G.players[bd.shishi.player];
+    const tok = document.createElement('div');
+    tok.className = 'shishiodoshi-token';
+    tok.innerHTML = drawShishiSVG(p.color, bd.shishi.points, 46);
+    cell.appendChild(tok);
+  } else if (bd.bamboo) {
+    const chipType = bd.bamboo.chipType;
+    const shape = bd.bamboo.shape;
+    if (shape === 'rotate') {
+      const sz = 48;
+      cell.innerHTML = `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" class="bam-svg">${rotateChipSVGInner(sz)}</svg>`;
+    } else if (shape === 'destroy') {
+      const sz = 48;
+      const dz = bd.bamboo.chipZone || bd.zone;
+      cell.innerHTML = `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" class="bam-svg">${destroyChipSVGInner(sz, dz)}</svg>`;
+    } else {
+      const chipZoneVal = bd.bamboo.chipZone || bd.zone;
+      cell.innerHTML = drawBambooSVG(shape, chipZoneVal, chipMultiplier(chipType));
+    }
+    // プレイヤーボーダーを再付与（always設定時のみ）
+    if (bd.bamboo.player !== undefined && (G.glowMode || 'action') === 'always') {
+      const p = G.players[bd.bamboo.player];
+      if (p) {
+        const border = document.createElement('div');
+        border.className = 'cell-chip-border';
+        border.style.setProperty('--ph-color', p.color);
+        cell.appendChild(border);
+      }
+    }
+  } else if (bd.zone === 'water') {
+    cell.innerHTML = `<span style="font-size:18px;opacity:0.7;">💧</span>`;
+  }
+}
+
+// ---- Shishiodoshi chip SVG ----
+// Design: player-color square bg, shishiodoshi bamboo illustration, score number bottom-left
+function drawShishiSVG(color, points, sz) {
+  sz = sz || 46;
+  const s = sz;
+
+  // Lighten color slightly for depth
+  // Bamboo tube: dark green body with black outline, light tip
+  // Illustration: tilted bamboo pipe (diagonal, upper-right to lower-left) + vertical receiving bamboo
+
+  // ---- Diagonal bamboo (the shishi-odoshi arm) ----
+  // Goes from upper-right to lower-left, tilted ~-40deg
+  // In svg coords: starts upper-right area, ends lower-center
+
+  const BK = '#111';           // black outline
+  const BG1 = '#1a6010';       // dark green bamboo body
+  const BG2 = '#4aaa20';       // mid green
+  const BHL = '#8acc40';       // highlight
+  const BAMBOO_TAN = '#c8a060'; // tan/beige for the vertical receiving bamboo
+  const BAMBOO_TAN2 = '#e8c880';
+  const BAMBOO_TAN_DK = '#8a6030';
+
+  // Score number colors: always red with white stroke (matching original)
+  const numColor = '#cc0000';
+
+  // scale factor
+  const sc = s / 48;
+
+  // Diagonal arm: thick bamboo tube tilted ~-40 degrees
+  // pivot from about (34,8) to (12,36)
+  const ax1 = 35*sc, ay1 = 6*sc;   // top of arm (tip, open end)
+  const ax2 = 10*sc, ay2 = 36*sc;  // bottom of arm (pivot end)
+
+  // arm length and angle
+  const adx = ax2-ax1, ady = ay2-ay1;
+  const alen = Math.sqrt(adx*adx+ady*ady);
+  const anx = -ady/alen, any = adx/alen; // perpendicular
+
+  const AT = 7*sc;  // arm tube half-width
+  const AM = 5*sc;  // arm tube mid-green half-width
+  const AH = 2*sc;  // highlight half-width
+
+  // Perpendicular offsets
+  const hox = anx*AH, hoy = any*AH;
+
+  // Vertical receiving bamboo: right side, tall
+  // A tan-colored vertical bamboo post
+  const vx = 30*sc, vy1 = 5*sc, vy2 = 44*sc;
+  const VT = 5.5*sc;
+  const VM = 4*sc;
+  const VH = 1.5*sc;
+
+  // Node rings on vertical bamboo
+  const nodes = [15*sc, 27*sc, 39*sc];
+
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="${s}" height="${s}" fill="${color}"/>
+  <!-- subtle inner shadow / vignette -->
+  <rect width="${s}" height="${s}" fill="url(#sv_${s})" opacity="0.25"/>
+  <defs>
+    <radialGradient id="sv_${s}" cx="50%" cy="50%" r="70%">
+      <stop offset="60%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="black"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Vertical receiving bamboo (behind arm) -->
+  <!-- Black outline -->
+  <line x1="${vx}" y1="${vy1}" x2="${vx}" y2="${vy2}"
+    stroke="${BK}" stroke-width="${VT*2}" stroke-linecap="butt"/>
+  <!-- Tan body -->
+  <line x1="${vx}" y1="${vy1}" x2="${vx}" y2="${vy2}"
+    stroke="${BAMBOO_TAN}" stroke-width="${VM*2}" stroke-linecap="butt"/>
+  <!-- Highlight stripe -->
+  <line x1="${vx - VH*0.6}" y1="${vy1}" x2="${vx - VH*0.6}" y2="${vy2}"
+    stroke="${BAMBOO_TAN2}" stroke-width="${VH*2}" stroke-linecap="butt"/>
+  <!-- Node rings -->
+  ${nodes.map(ny => `
+  <rect x="${vx - VT}" y="${ny - 1.5*sc}" width="${VT*2}" height="${3*sc}"
+    fill="${BAMBOO_TAN_DK}" rx="${1*sc}"/>
+  <rect x="${vx - VM}" y="${ny - 0.8*sc}" width="${VM*2}" height="${1.6*sc}"
+    fill="${BAMBOO_TAN}" rx="${0.8*sc}"/>
+  `).join('')}
+
+  <!-- Diagonal shishi-odoshi arm -->
+  <!-- Black outline -->
+  <line x1="${ax1}" y1="${ay1}" x2="${ax2}" y2="${ay2}"
+    stroke="${BK}" stroke-width="${AT*2}" stroke-linecap="round"/>
+  <!-- Dark green body -->
+  <line x1="${ax1}" y1="${ay1}" x2="${ax2}" y2="${ay2}"
+    stroke="${BG1}" stroke-width="${AM*2}" stroke-linecap="round"/>
+  <!-- Light green highlight stripe -->
+  <line x1="${ax1+hox}" y1="${ay1+hoy}" x2="${ax2+hox*0.6}" y2="${ay2+hoy*0.6}"
+    stroke="${BHL}" stroke-width="${AH*2}" stroke-linecap="round" opacity="0.9"/>
+  <!-- Open hollow end at tip -->
+  <ellipse cx="${ax1}" cy="${ay1}"
+    rx="${AT*0.85}" ry="${AT*0.5}"
+    fill="${BK}" transform="rotate(${Math.atan2(ady,adx)*180/Math.PI+90},${ax1},${ay1})"/>
+  <ellipse cx="${ax1}" cy="${ay1}"
+    rx="${AT*0.6}" ry="${AT*0.35}"
+    fill="#0a1a05" transform="rotate(${Math.atan2(ady,adx)*180/Math.PI+90},${ax1},${ay1})"/>
+  <!-- Node ring in middle of arm -->
+  <g transform="rotate(${Math.atan2(ady,adx)*180/Math.PI}, ${(ax1+ax2)/2}, ${(ay1+ay2)/2})">
+    <rect x="${(ax1+ax2)/2 - AT}" y="${(ay1+ay2)/2 - 2*sc}"
+      width="${AT*2}" height="${4*sc}" fill="${BK}" rx="${1.5*sc}"/>
+    <rect x="${(ax1+ax2)/2 - AM*0.9}" y="${(ay1+ay2)/2 - 1.2*sc}"
+      width="${AM*1.8}" height="${2.4*sc}" fill="${BG2}" rx="${1*sc}"/>
+  </g>
+
+  <!-- Score number: bottom-left, red with white stroke -->
+  <text x="${6*sc}" y="${s - 5*sc}"
+    font-size="${19*sc}" font-weight="900"
+    font-family="Arial Black, Arial, sans-serif"
+    fill="${numColor}"
+    stroke="white" stroke-width="${3.5*sc}" paint-order="stroke"
+    text-anchor="start">${points}</text>
+</svg>`;
+}
+
+// Zone background colours matching board
+const ZONE_COLORS = {
+  water:  '#2bb5d8',
+  gravel: '#c0c0c0',
+  lawn:   '#aadd44',
+  azalea: '#2eaa44',
+  cherry: '#f090c0',
+};
+
+function drawBambooSVG(shape, zone, mul) {
+  // shape: e.g. 'I-NS', zone: chip's own zone (gravel/lawn/azalea/cherry)
+  // mul: 1/2/3 multiplier (pre-computed)
+  if (mul === undefined) mul = 1;
+  const conn = BAMBOO_SHAPES[shape];
+  if (!conn) return '';
+  const [N,E,S,W] = conn;
+  const sz = 48, cx = 24, cy = 24;
+
+  // Bamboo tube colours
+  const BK = '#111';
+  const DG = '#1a6010';
+  const LG = '#7acc30';
+  const TW = 12, MW = 9, HW = 4;
+
+  function arm(x1,y1,x2,y2) {
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    const nx = -dy/len, ny = dx/len;
+    const hx = nx*(TW/2-HW/2-1), hy = ny*(TW/2-HW/2-1);
+    return [
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${BK}" stroke-width="${TW}" stroke-linecap="butt"/>`,
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${DG}" stroke-width="${MW}" stroke-linecap="butt"/>`,
+      `<line x1="${x1+hx}" y1="${y1+hy}" x2="${x2+hx}" y2="${y2+hy}" stroke="${LG}" stroke-width="${HW}" stroke-linecap="butt"/>`,
+    ].join('');
+  }
+
+  const jx1=cx-TW/2, jy1=cy-TW/2, jw=TW;
+
+  let el = zoneDefs() + zoneBgSVG(zone, sz);
+  if (N) el += arm(cx, cy, cx, 0);
+  if (S) el += arm(cx, cy, cx, sz);
+  if (E) el += arm(cx, cy, sz, cy);
+  if (W) el += arm(cx, cy, 0, cy);
+  el += `<rect x="${jx1}" y="${jy1}" width="${jw}" height="${jw}" fill="${BK}"/>`;
+  el += `<rect x="${jx1+1.5}" y="${jy1+1.5}" width="${jw-3}" height="${jw-3}" fill="${DG}"/>`;
+  el += `<rect x="${jx1+1.5}" y="${jy1+1.5}" width="${HW-1}" height="${jw-3}" fill="${LG}"/>`;
+
+  if (mul > 1) {
+    const mc = mul === 2 ? '#dd0000' : '#0000cc';
+    el += `<text x="${sz-2}" y="${sz-2}" text-anchor="end" dominant-baseline="auto" `
+        + `font-size="13" font-weight="bold" font-family="Arial,sans-serif" fill="${mc}" `
+        + `stroke="white" stroke-width="2" paint-order="stroke">×${mul}</text>`;
+  }
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" class="bam-svg">${el}</svg>`;
+}
+
+// ---- Rotate chip SVG (inner content, usable at any size) ----
+// Design: white background, wrench icon (gray 3D), 「回」left+「転」right in red, -Rotation- red below
+function rotateChipSVGInner(sz) {
+  const cx = sz/2, cy = sz/2;
+  // Scale factor relative to 48px base
+  const sc = sz / 48;
+  return `
+  <rect width="${sz}" height="${sz}" rx="${4*sc}" fill="white" stroke="#e0e0e0" stroke-width="${sc}"/>
+  <!-- Wrench SVG icon centered-left-of-center, tilted 45deg -->
+  <g transform="translate(${cx},${cy*0.82}) rotate(-40) scale(${sc})">
+    <!-- Handle -->
+    <rect x="-2.5" y="-14" width="5" height="22" rx="2.5"
+      fill="url(#rwg_${sz})" stroke="#555" stroke-width="0.4"/>
+    <!-- Head open-end U shape -->
+    <path d="M-7,-14 Q-7,-22 0,-22 Q7,-22 7,-14 L4.5,-14 Q4.5,-19.5 0,-19.5 Q-4.5,-19.5 -4.5,-14Z"
+      fill="#a0a0a0" stroke="#555" stroke-width="0.4"/>
+    <!-- Head box end -->
+    <rect x="-5" y="7" width="10" height="7" rx="2"
+      fill="#a0a0a0" stroke="#555" stroke-width="0.4"/>
+    <!-- Highlight stripe -->
+    <rect x="-0.5" y="-13" width="2" height="20" rx="1" fill="rgba(255,255,255,0.45)"/>
+  </g>
+  <defs>
+    <linearGradient id="rwg_${sz}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#707070"/>
+      <stop offset="30%" stop-color="#c8c8c8"/>
+      <stop offset="70%" stop-color="#b0b0b0"/>
+      <stop offset="100%" stop-color="#808080"/>
+    </linearGradient>
+  </defs>
+  <!-- 回 left, 転 right in bold red -->
+  <text x="${cx*0.38}" y="${cy*0.62}" text-anchor="middle"
+    font-size="${14*sc}" font-weight="900" font-family="'Noto Serif JP',serif"
+    fill="#cc0000" stroke="white" stroke-width="${1.2*sc}" paint-order="stroke">回</text>
+  <text x="${cx*1.62}" y="${cy*1.18}" text-anchor="middle"
+    font-size="${14*sc}" font-weight="900" font-family="'Noto Serif JP',serif"
+    fill="#cc0000" stroke="white" stroke-width="${1.2*sc}" paint-order="stroke">転</text>
+  <!-- -Rotation- -->
+  <text x="${cx}" y="${sz - 3*sc}" text-anchor="middle"
+    font-size="${6.5*sc}" font-family="Georgia,serif" font-style="italic"
+    fill="#cc0000">-Rotation-</text>`;
+}
+
+// ---- Destroy chip SVG (inner content) ----
+// Design: zone texture bg, wooden mallet, 「破」top-left + 「壊」bottom-right white-outlined, -Destroy- bottom
+function destroyChipSVGInner(sz, zone) {
+  const cx = sz/2, cy = sz/2;
+  const sc = sz / 48;
+  const bgInner = zoneDefs() + zoneBgSVG(zone || 'gravel', sz);
+  return `
+  ${bgInner}
+  <!-- Mallet: handle -->
+  <line x1="${32*sc}" y1="${32*sc}" x2="${43*sc}" y2="${43*sc}"
+    stroke="#8B5E3C" stroke-width="${6*sc}" stroke-linecap="round"/>
+  <line x1="${32*sc}" y1="${32*sc}" x2="${43*sc}" y2="${43*sc}"
+    stroke="#C4905A" stroke-width="${3*sc}" stroke-linecap="round" stroke-dasharray="2,3"/>
+  <!-- Mallet head body (dark wood) -->
+  <g transform="rotate(-38,${cx},${cy*0.65})">
+    <rect x="${cx - 14*sc}" y="${cy*0.65 - 8*sc}" width="${28*sc}" height="${16*sc}" rx="${3*sc}"
+      fill="#7a5230" stroke="#3a2010" stroke-width="${0.8*sc}"/>
+    <!-- Top face highlight -->
+    <rect x="${cx - 14*sc}" y="${cy*0.65 - 8*sc}" width="${28*sc}" height="${7*sc}" rx="${2.5*sc}"
+      fill="#9a7250"/>
+    <!-- Highlight stripe -->
+    <rect x="${cx - 11*sc}" y="${cy*0.65 - 7*sc}" width="${4*sc}" height="${5*sc}" rx="${1.5*sc}"
+      fill="rgba(255,255,255,0.18)"/>
+  </g>
+  <!-- 破 top-left -->
+  <text x="${10*sc}" y="${18*sc}" text-anchor="middle"
+    font-size="${15*sc}" font-weight="900" font-family="'Noto Serif JP',serif"
+    fill="white" stroke="black" stroke-width="${2.5*sc}" paint-order="stroke">破</text>
+  <!-- 壊 bottom-right -->
+  <text x="${38*sc}" y="${38*sc}" text-anchor="middle"
+    font-size="${15*sc}" font-weight="900" font-family="'Noto Serif JP',serif"
+    fill="white" stroke="black" stroke-width="${2.5*sc}" paint-order="stroke">壊</text>
+  <!-- -Destroy- bottom -->
+  <text x="${cx}" y="${sz - 2*sc}" text-anchor="middle"
+    font-size="${6*sc}" font-family="Georgia,serif" font-style="italic"
+    fill="white" stroke="black" stroke-width="${1.2*sc}" paint-order="stroke">-Destroy-</text>`;
+}
+
+// Legacy wrappers (kept for safety)
+function drawRotateSVG() {
+  const sz = 48;
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" class="bam-svg">${rotateChipSVGInner(sz)}</svg>`;
+}
+function drawDestroySVG(zone) {
+  const sz = 48;
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" class="bam-svg">${destroyChipSVGInner(sz, zone)}</svg>`;
+}
+
+function updatePlaceableHighlights() {
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.classList.remove('placeable');
+  });
+
+  if (G.mode !== 'place' || !G.selectedChip) return;
+
+  // Find placeable cells: must be adjacent to water or existing bamboo or shishi,
+  // must be empty (no bamboo, no shishi), must not be water zone
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      if (canPlaceBamboo(r, c)) {
+        const cell = getCellEl(r,c);
+        if (cell) cell.classList.add('placeable');
+      }
+    }
+  }
+}
+
+function getCellEl(r,c) {
+  return document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+}
+
+function canPlaceBamboo(r, c) {
+  const bd = G.board[r][c];
+  if (bd.zone === 'water') return false;
+  if (bd.bamboo) return false;
+  if (bd.shishi) return false;
+
+  // チップのゾーンと盤面ゾーンが一致する必要
+  if (G.selectedChip) {
+    const cz = chipZone(G.selectedChip);
+    if (cz && bd.zone !== cz) return false;
+  }
+
+  // 置くチップの接続方向を取得
+  const shape = G.selectedChip ? chipShape(G.selectedChip) : null;
+  const conn  = shape ? BAMBOO_SHAPES[shape] : null;
+  // conn = [N, E, S, W]
+  const dirMap = [
+    { dr:-1, dc: 0, myIdx:0, oppIdx:2 }, // 北: 自チップのN口 ↔ 隣チップのS口
+    { dr: 1, dc: 0, myIdx:2, oppIdx:0 }, // 南: 自チップのS口 ↔ 隣チップのN口
+    { dr: 0, dc: 1, myIdx:1, oppIdx:3 }, // 東: 自チップのE口 ↔ 隣チップのW口
+    { dr: 0, dc:-1, myIdx:3, oppIdx:1 }, // 西: 自チップのW口 ↔ 隣チップのE口
+  ];
+
+  for (const { dr, dc, myIdx, oppIdx } of dirMap) {
+    const nr = r+dr, nc = c+dc;
+    if (nr<0||nr>=GRID||nc<0||nc>=GRID) continue;
+    const nb = G.board[nr][nc];
+
+    // 自チップにその方向の口がない場合はスキップ
+    if (conn && !conn[myIdx]) continue;
+
+    if (nb.zone === 'water') return true; // 水源は全方向受け入れ
+
+    if (nb.bamboo) {
+      // 隣の竹筒がこちら側に口を持っているか確認
+      const nbConn = BAMBOO_SHAPES[nb.bamboo.shape];
+      if (nbConn && nbConn[oppIdx]) return true;
+    }
+
+    if (nb.shishi) return true; // シシオドシは全方向受け入れ
+  }
+  return false;
+}
+
+function updateScoreDisplays() {
+  G.players.forEach((p,i) => {
+    const card = document.getElementById(`playerCard${i}`);
+    if (!card) return;
+    const scoreEl = card.querySelector('.score-display');
+    if (scoreEl) scoreEl.textContent = p.score;
+    card.classList.toggle('active', i === G.currentPlayer);
+  });
+}
+
+function updateUI() {
+  const cp = G.players[G.currentPlayer];
+  document.getElementById('currentPlayerName').textContent =
+    cp.name + (cp.isHuman ? '' : '（CPU）');
+  document.getElementById('currentPlayerName').style.color = cp.color;
+  document.getElementById('actionsLeft').textContent = G.actionsLeft;
+
+  const isCPU = !cp.isHuman;
+  const hc = G.handCount || 'dice';
+  const isDiceMode = hc === 'dice';
+  const canRoll = G.phase === 'roll' && !isCPU;
+  const canAct  = G.phase === 'action' && G.actionsLeft > 0 && !isCPU;
+
+  document.getElementById('btnPlace').disabled    = !canAct;
+  document.getElementById('btnCard').disabled     = !canAct || G.waterCards.length === 0;
+  document.getElementById('btnEndTurn').disabled  = (G.phase !== 'action' && G.phase !== 'end') || isCPU;
+  document.getElementById('diceFace').style.cursor  = (canRoll && isDiceMode) ? 'pointer' : 'default';
+  document.getElementById('diceFace').style.opacity = canRoll ? '1' : '0.6';
+  // サイコロ以外では固定数字をロール前に表示
+  if (!isDiceMode && G.phase === 'roll') {
+    document.getElementById('diceFace').textContent = hc;
+  }
+
+  const hasRotate = cp.hand.includes('rotate');
+  const hasDestroy = cp.hand.some(h => h.startsWith('destroy'));
+  document.getElementById('btnRotate').disabled = !canAct || !hasRotate;
+  document.getElementById('btnRotate').textContent = (G.mode === 'rotate') ? '↩ 回転キャンセル' : '回転チップ使用';
+  document.getElementById('btnDestroy').disabled = !canAct || !hasDestroy;
+  document.getElementById('btnDestroy').textContent = (G.mode === 'destroy') ? '↩ 破壊キャンセル' : '破壊チップ使用';
+
+  updateDeckVisual();
+  updateHandDisplays();
+  updateScoreDisplays();
+  // Mobile
+  if (typeof updateMobileScoreStrip === 'function') updateMobileScoreStrip();
+  if (typeof scaleBoardForMobile === 'function' && typeof isMobile === 'function' && isMobile()) setTimeout(scaleBoardForMobile, 30);
+}
+
+function cardName(dir) {
+  const map = {
+    'N':'北','E':'東','S':'南','W':'西',
+    'NE':'北東','NW':'北西','SE':'南東','SW':'南西',
+    'NS':'北南','EW':'東西','NEWS':'全方向','dud':'不発'
+  };
+  return map[dir] || dir;
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function showTurnPopup(player) {
+  const popup  = document.getElementById('turnPopup');
+  const box    = document.getElementById('turnPopupBox');
+  const nameEl = document.getElementById('turnPopupName');
+  const subEl  = document.getElementById('turnPopupSub');
+  const lblEl  = document.getElementById('turnPopupLabel');
+
+  const isCPU = !player.isHuman;
+  nameEl.textContent = player.name + (isCPU ? '（CPU）' : '');
+  nameEl.style.color = player.color;
+  box.style.setProperty('--player-turn-color', player.color);
+  box.style.setProperty('--player-turn-glow', player.glow);
+
+  if (isCPU) {
+    lblEl.textContent = 'CPUのターン';
+    subEl.textContent = 'クリックしてCPUを動かす';
+  } else {
+    lblEl.textContent = 'ターン開始';
+    const hc = G.handCount || 'dice';
+    const subText = hc === 'dice'
+      ? 'クリックしてサイコロを振る'
+      : `クリックして${hc}手番を開始`;
+    subEl.textContent = subText;
+  }
+
+  // Store whether current popup is for CPU
+  popup.dataset.isCpu = isCPU ? '1' : '0';
+  popup.classList.add('show');
+  SFX.turnChange();
+}
+
+function onTurnPopupClick() {
+  const popup = document.getElementById('turnPopup');
+  const isCPU = popup.dataset.isCpu === '1';
+  popup.classList.remove('show');
+  SFX.start();
+
+  if (isCPU) {
+    scheduleCPUTurn();
+  } else {
+    const hc = G.handCount || 'dice';
+    if (hc !== 'dice') {
+      // 固定手番：即アクション開始
+      const val = parseInt(hc);
+      G.diceValue   = val;
+      G.actionsLeft = val;
+      document.getElementById('diceFace').textContent = val;
+      addLog(`${G.players[G.currentPlayer].name} のターン（${val}手番）`);
+      setTimeout(() => { setPhase('action'); updateUI(); }, 100);
+    } else {
+      // サイコロモード：UIを更新してサイコロをクリック待ちに
+      updateUI();
+    }
+  }
+}
+
+function dismissTurnPopup() {
+  document.getElementById('turnPopup').classList.remove('show');
+  SFX.start();
+}
+
+function setPhase(p) {
+  G.phase = p;
+  G.mode = null;
+  G.selectedChip = null;
+  G.selectedChipIdx = null;
+  document.getElementById('btnPlace').classList.remove('active');
+  document.getElementById('modeBadge').classList.remove('show');
+  updateUI();
+  // CPUのアクションフェーズ開始
+  if (p === 'action' && isCurrentCPU()) {
+    cpuDoActions();
+  }
+}
+
+function rollDice() {
+  if (G.phase !== 'roll') return;
+  if (isCurrentCPU()) return;
+  SFX.dice();
+
+  const hc  = G.handCount || 'dice';
+  const val = hc === '1' ? 1 : hc === '2' ? 2 : Math.floor(Math.random() * 3) + 1;
+  G.diceValue   = val;
+  G.actionsLeft = val;
+
+  const diceEl = document.getElementById('diceFace');
+  if (hc === 'dice') {
+    diceEl.classList.add('dice-rolling');
+    setTimeout(() => { diceEl.classList.remove('dice-rolling'); diceEl.textContent = val; }, 400);
+    addLog(`${G.players[G.currentPlayer].name} がサイコロを振って ${val} が出た！`);
+  } else {
+    diceEl.textContent = val;
+    addLog(`${G.players[G.currentPlayer].name} のターン（${val}手番）`);
+  }
+
+  const diceGlow = document.getElementById('diceFace');
+  diceGlow.style.boxShadow = `0 0 0 3px ${G.players[G.currentPlayer].color}, 0 0 16px ${G.players[G.currentPlayer].glow}`;
+  setTimeout(() => { diceGlow.style.boxShadow = ''; }, 1200);
+  setTimeout(() => { setPhase('action'); updateUI(); }, hc === 'dice' ? 500 : 100);
+}
+
+function selectChip(playerIdx, chipIdx, chip) {
+  if (playerIdx !== G.currentPlayer) return;
+  if (G.phase !== 'action') return;
+  if (chip === 'rotate') { useRotateChip(); return; }
+  if (chip.startsWith('destroy')) { toggleDestroyMode(chip); return; }
+
+  // 同じチップを再クリック → 時計回りに回転（クリックで手軽に）
+  if (G.selectedChipIdx === chipIdx && G.currentPlayer === playerIdx && G.mode === 'place') {
+    rotateSelectedChip('cw');
+    return;
+  }
+
+  G.selectedChipIdx = chipIdx;
+  G.selectedChip = chip;
+  G.mode = 'place';
+  document.getElementById('btnPlace').classList.add('active');
+  document.getElementById('modeBadge').classList.remove('show');
+  updatePlaceableHighlights();
+  updateHandDisplays();
+  // 回転ボタンを表示
+  showRotateBtns(true);
+}
+
+// 選択中チップを回転（cw=時計回り, ccw=反時計回り）
+function rotateSelectedChip(dir) {
+  if (!G.selectedChip || G.mode !== 'place') return;
+  if (G.currentPlayer < 0 || G.currentPlayer >= G.players.length) return;
+  const cp = G.players[G.currentPlayer];
+  if (G.selectedChipIdx === null || G.selectedChipIdx === undefined) return;
+
+  const oldKey = cp.hand[G.selectedChipIdx];
+  const oldSh  = chipShape(oldKey);
+  const zone   = chipZone(oldKey);
+  const map    = dir === 'ccw' ? ROTATE_MAP_CCW : ROTATE_MAP;
+  const newSh  = map[oldSh] || oldSh;
+
+  if (newSh === oldSh) return; // 回転不要（Xや無変化）
+
+  const newKey = zone ? `${newSh}-${zone}` : newSh;
+  cp.hand[G.selectedChipIdx] = newKey;
+  G.selectedChip = newKey;
+  SFX.place(); // 軽い音
+  updateHandDisplays();
+  updatePlaceableHighlights();
+  showRotateBtns(true);
+}
+
+// 回転ボタンの表示制御
+function showRotateBtns(show) {
+  G.players.forEach((p, i) => {
+    const el = document.getElementById(`rotateBtns${i}`);
+    if (!el) return;
+    // 選択中のチップがI字/L字/T字のとき（Xは不要）のみ表示
+    const shouldShow = show &&
+      i === G.currentPlayer &&
+      G.mode === 'place' &&
+      G.selectedChip &&
+      chipShape(G.selectedChip) !== 'X';
+    el.classList.toggle('show', !!shouldShow);
+  });
+}
+
+function togglePlaceMode() {
+  if (G.phase !== 'action') return;
+  const cp = G.players[G.currentPlayer];
+  // Pick first non-special chip
+  const idx = cp.hand.findIndex(h => h !== 'rotate' && !h.startsWith('destroy'));
+  if (idx === -1) { addLog('置ける竹筒チップがありません'); return; }
+  
+  if (G.mode === 'place') {
+    G.mode = null;
+    G.selectedChip = null;
+    G.selectedChipIdx = null;
+    document.getElementById('btnPlace').classList.remove('active');
+    document.getElementById('modeBadge').classList.remove('show');
+    updatePlaceableHighlights();
+    updateHandDisplays();
+  } else {
+    selectChip(G.currentPlayer, idx, cp.hand[idx]);
+  }
+}
+
+function toggleDestroyMode(chipType) {
+  if (G.phase !== 'action') return;
+  const cp = G.players[G.currentPlayer];
+
+  // If no chipType given, find first destroy chip in hand
+  if (!chipType) {
+    chipType = cp.hand.find(h => h.startsWith('destroy'));
+  }
+  if (!chipType) return;
+
+  // Toggle off if same destroy chip already active
+  if (G.mode === 'destroy' && G.selectedChip === chipType) {
+    G.mode = null;
+    G.selectedChip = null;
+    G.selectedChipIdx = null;
+    document.getElementById('modeBadge').classList.remove('show');
+    highlightDestroyable(false);
+    updateUI();
+    return;
+  }
+
+  const idx = cp.hand.indexOf(chipType);
+  if (idx === -1) return;
+
+  G.mode = 'destroy';
+  G.selectedChip = chipType;
+  G.selectedChipIdx = idx;
+  document.getElementById('modeBadge').classList.remove('show');
+  const zone = chipZone(chipType);
+  const zn = { gravel:'砂利', lawn:'芝', azalea:'つつじ' };
+  addLog(`破壊モード[${zn[zone]||zone}]：同じエリアの竹筒をクリックして破壊（Escでキャンセル）`);
+  highlightDestroyable(true);
+  updateUI();
+}
+
+function highlightDestroyable(on) {
+  const destroyZone = (G.mode === 'destroy' && G.selectedChip) ? chipZone(G.selectedChip) : null;
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      const cel = getCellEl(r,c);
+      if (!cel) continue;
+      const bam = G.board[r][c].bamboo;
+      if (on && bam && bam.shape !== 'rotate' && bam.shape !== 'destroy') {
+        // Only highlight if chip zone matches
+        const matchZone = !destroyZone || (bam.chipZone === destroyZone);
+        if (matchZone) {
+          cel.classList.add('placeable');
+          continue;
+        }
+      }
+      cel.classList.remove('placeable');
+    }
+  }
+}
+
+function cellClick(r, c) {
+  if (G.phase !== 'action') return;
+  if (isCurrentCPU()) return;
+
+  // 回転コントロール表示中に別のセルをクリック → キャンセル
+  if (_boardRotateTarget && (r !== _boardRotateTarget.r || c !== _boardRotateTarget.c)) {
+    cancelBoardRotate();
+    return;
+  }
+
+  if (G.mode === 'place') {
+    placeBamboo(r, c);
+  } else if (G.mode === 'destroy') {
+    destroyBamboo(r, c);
+  } else if (G.mode === 'rotate') {
+    rotateBoardChip(r, c);
+  }
+}
+
+// 回転操作の状態
+let _boardRotateTarget   = null; // { r, c }
+let _boardRotateCurrent  = null; // 現在の形状（プレビュー中）
+let _boardRotateOriginal = null; // キャンセル用の元の形状
+
+function rotateBoardChip(r, c) {
+  const bd = G.board[r][c];
+  if (!bd.bamboo || bd.bamboo.shape === 'rotate' || bd.bamboo.shape === 'destroy') {
+    addLog('そこには回転できる竹筒がありません');
+    return;
+  }
+  const cp = G.players[G.currentPlayer];
+  const idx = cp.hand.indexOf('rotate');
+  if (idx === -1) return;
+
+  if (bd.bamboo.shape === 'X') {
+    addLog('十字チップは回転しても変わりません');
+    return;
+  }
+
+  // I字・L字・T字すべてインラインコントロールを表示
+  _boardRotateTarget   = { r, c };
+  _boardRotateCurrent  = bd.bamboo.shape;
+  _boardRotateOriginal = bd.bamboo.shape;
+  showBoardRotateControl(r, c, bd.bamboo.shape, bd.bamboo.chipZone || bd.zone);
+}
+
+function showBoardRotateControl(r, c, shape, zone) {
+  const ctrl = document.getElementById('boardRotateControl');
+  if (!ctrl) return;
+
+  // 対象セルに緑枠リングを付与
+  _removeBrcRing();
+  const cel = getCellEl(r, c);
+  if (!cel) return;
+  const ring = document.createElement('div');
+  ring.className = 'brc-cell-ring';
+  ring.id = 'brcCellRing';
+  cel.appendChild(ring);
+
+  // コントロールの表示（先にshowクラスを付けてサイズを確定）
+  ctrl.style.display = 'flex';
+  ctrl.classList.add('show');
+
+  // セルの右横に配置（position完全リセット）
+  ctrl.style.position = 'fixed';
+  ctrl.style.top    = '';
+  ctrl.style.left   = '';
+  ctrl.style.right  = '';
+  ctrl.style.bottom = '';
+
+  requestAnimationFrame(() => {
+    const celRect  = cel.getBoundingClientRect();
+    const ctrlW    = ctrl.offsetWidth  || 100;
+    const ctrlH    = ctrl.offsetHeight || 40;
+    let left = celRect.right + 8;
+    let top  = celRect.top + celRect.height / 2 - ctrlH / 2;
+
+    // 画面右端にはみ出す → 左横
+    if (left + ctrlW > window.innerWidth - 4) {
+      left = celRect.left - ctrlW - 8;
+    }
+    // 画面上下クリップ
+    top = Math.max(4, Math.min(top, window.innerHeight - ctrlH - 4));
+
+    ctrl.style.left = `${left}px`;
+    ctrl.style.top  = `${top}px`;
+  });
+}
+
+function _removeBrcRing() {
+  const old = document.getElementById('brcCellRing');
+  if (old) old.remove();
+}
+
+function boardRotateStep(dir) {
+  if (!_boardRotateTarget || _boardRotateCurrent === null) return;
+  const map = dir === 'ccw' ? ROTATE_MAP_CCW : ROTATE_MAP;
+  _boardRotateCurrent = map[_boardRotateCurrent] || _boardRotateCurrent;
+
+  // 盤面上のチップを直接書き換えてリアルタイムプレビュー
+  const bd = G.board[_boardRotateTarget.r][_boardRotateTarget.c];
+  if (bd.bamboo) {
+    bd.bamboo.shape = _boardRotateCurrent;
+    const cel = getCellEl(_boardRotateTarget.r, _boardRotateTarget.c);
+    if (cel) {
+      const ring = document.getElementById('brcCellRing');
+      renderCellContent(cel, _boardRotateTarget.r, _boardRotateTarget.c);
+      // リングを再付与（renderCellContentでinnerHTMLが消えるため）
+      const newRing = document.createElement('div');
+      newRing.className = 'brc-cell-ring';
+      newRing.id = 'brcCellRing';
+      cel.appendChild(newRing);
+    }
+  }
+  SFX.rotate();
+}
+
+function cancelBoardRotate() {
+  const ctrl = document.getElementById('boardRotateControl');
+  ctrl.classList.remove('show');
+  ctrl.style.display = 'none';
+  _removeBrcRing();
+  // キャンセル時は元の形状に戻す
+  if (_boardRotateTarget && _boardRotateOriginal) {
+    const bd = G.board[_boardRotateTarget.r][_boardRotateTarget.c];
+    if (bd.bamboo) {
+      bd.bamboo.shape = _boardRotateOriginal;
+      const cel = getCellEl(_boardRotateTarget.r, _boardRotateTarget.c);
+      if (cel) renderCellContent(cel, _boardRotateTarget.r, _boardRotateTarget.c);
+    }
+  }
+  _boardRotateTarget   = null;
+  _boardRotateCurrent  = null;
+  _boardRotateOriginal = null;
+}
+
+function confirmBoardRotate() {
+  const ctrl = document.getElementById('boardRotateControl');
+  ctrl.classList.remove('show');
+  ctrl.style.display = 'none';
+  _removeBrcRing();
+  if (!_boardRotateTarget || _boardRotateCurrent === null) return;
+
+  const { r, c }  = _boardRotateTarget;
+  _boardRotateTarget   = null;
+  _boardRotateCurrent  = null;
+  _boardRotateOriginal = null;
+
+  const bd = G.board[r][c];
+  if (!bd.bamboo) return;
+  const cp = G.players[G.currentPlayer];
+  const idx = cp.hand.indexOf('rotate');
+  if (idx === -1) return;
+
+  // bd.bamboo.shape は boardRotateStep で既に更新済み
+  const newShape = bd.bamboo.shape;
+  if (bd.bamboo.chipType) {
+    const zone = bd.bamboo.chipZone || chipZone(bd.bamboo.chipType);
+    bd.bamboo.chipType = zone ? `${newShape}-${zone}` : newShape;
+  }
+  cp.hand.splice(idx, 1);
+  SFX.rotate();
+  addLog(`${cp.name} が回転チップを使用！(${r},${c})の竹筒を回転`, true);
+
+  G.mode = null;
+  highlightBoardBamboo(false);
+
+  const celEl = getCellEl(r, c);
+  if (celEl) {
+    renderCellContent(celEl, r, c);
+    addPlayerHighlight(r, c, G.currentPlayer, false);
+  }
+
+  G.actionsLeft--;
+  if (G.actionsLeft <= 0) { setTimeout(() => endTurn(), CPU_DELAY('end')); updateUI(); return; }
+  updateUI();
+  if (isCurrentCPU()) cpuContinue();
+}
+
+// 旧関数名の互換（CPUが使う）
+function execBoardRotate(dir) {
+  if (_boardRotateTarget) {
+    boardRotateStep(dir);
+    confirmBoardRotate();
+  }
+}
+
+function placeBamboo(r, c) {
+  if (!G.selectedChip) {
+    addLog('チップを選択してください');
+    return;
+  }
+  if (!canPlaceBamboo(r, c)) {
+    addLog('そこには置けません');
+    return;
+  }
+  SFX.place();
+
+  const cp = G.players[G.currentPlayer];
+  const chipType = G.selectedChip; // full 'shape-zone' key
+  const shape = chipShape(chipType);
+  const zone = chipZone(chipType);
+
+  G.board[r][c].bamboo = { 
+    player: G.currentPlayer, 
+    shape: shape,         // e.g. 'I-NS'
+    chipType: chipType,   // e.g. 'I-NS-lawn'
+    chipZone: zone,       // e.g. 'lawn'
+    multiplier: chipMultiplier(chipType),
+  };
+  
+  // Remove from hand
+  cp.hand.splice(G.selectedChipIdx, 1);
+  
+  addLog(`${cp.name} が ${ZONE_MAP[r][c]}エリア(${r},${c})に ${chipName(chipType)} を配置`);
+
+  G.selectedChip = null;
+  G.selectedChipIdx = null;
+  G.mode = null;
+  document.getElementById('btnPlace').classList.remove('active');
+  document.getElementById('modeBadge').classList.remove('show');
+  showRotateBtns(false);
+  
+  G.actionsLeft--;
+  
+  // Re-render cell (includes persistent border)
+  const celEl = getCellEl(r,c);
+  if (celEl) {
+    renderCellContent(celEl, r, c);
+    // Flash highlight
+    addPlayerHighlight(r, c, G.currentPlayer, false);
+  }
+  
+  updatePlaceableHighlights();
+  
+  if (G.actionsLeft <= 0) {
+    setTimeout(() => endTurn(), 600);
+    updateUI();
+    return;
+  }
+  updateUI();
+  if (isCurrentCPU()) cpuContinue();
+}
+
+function getMultiplier(shape) { return 1; }
+
+function destroyBamboo(r, c) {
+  const bd = G.board[r][c];
+  if (!bd.bamboo) { addLog('そこには竹筒チップがありません'); return; }
+  if (bd.bamboo.shape === 'rotate' || bd.bamboo.shape === 'destroy') {
+    addLog('そのチップは破壊できません'); return;
+  }
+
+  const cp = G.players[G.currentPlayer];
+  const destroyChip = G.selectedChip; // e.g. 'destroy-gravel'
+  if (!destroyChip || !destroyChip.startsWith('destroy')) return;
+
+  const destroyZone = chipZone(destroyChip); // gravel / lawn / azalea
+  const targetZone = bd.bamboo.chipZone || bd.zone;
+
+  // Zone must match
+  if (destroyZone && targetZone !== destroyZone) {
+    const zn = { gravel:'砂利', lawn:'芝', azalea:'つつじ' };
+    addLog(`この破壊チップは${zn[destroyZone]||destroyZone}エリアの竹筒のみ破壊できます`);
+    return;
+  }
+
+  const destroyIdx = cp.hand.indexOf(destroyChip);
+  if (destroyIdx === -1) return;
+
+  addLog(`${cp.name} が (${r},${c}) の竹筒チップ[${targetZone}]を破壊！`);
+  SFX.destroy();
+  G.board[r][c].bamboo = null;
+  cp.hand.splice(destroyIdx, 1);
+
+  const celEl = getCellEl(r,c);
+  if (celEl) {
+    renderCellContent(celEl, r, c);
+    // 破壊フラッシュ（撤去したセルを一瞬光らせる）
+    addPlayerHighlight(r, c, G.currentPlayer, false);
+  }
+
+  G.mode = null;
+  G.selectedChip = null;
+  G.selectedChipIdx = null;
+  document.getElementById('modeBadge').classList.remove('show');
+  highlightDestroyable(false);
+  G.actionsLeft--;
+
+  if (G.actionsLeft <= 0) { setTimeout(() => endTurn(), 600); updateUI(); return; }
+  updateUI();
+  if (isCurrentCPU()) cpuContinue();
+}
+
+function useRotateChip() {
+  if (G.phase !== 'action') return;
+  const cp = G.players[G.currentPlayer];
+  const idx = cp.hand.indexOf('rotate');
+  if (idx === -1) return;
+  
+  if (G.mode === 'rotate') {
+    G.mode = null;
+    highlightBoardBamboo(false);
+    updateUI();
+    return;
+  }
+  
+  G.mode = 'rotate';
+  highlightBoardBamboo(true);
+  addLog('回転させたい竹筒チップをクリック（Escでキャンセル）');
+  updateUI();
+}
+
+function highlightBoardBamboo(on) {
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      const cel = getCellEl(r,c);
+      if (!cel) continue;
+      if (on && G.board[r][c].bamboo && G.board[r][c].bamboo.shape !== 'rotate' && G.board[r][c].bamboo.shape !== 'destroy') {
+        cel.classList.add('placeable');
+      } else {
+        cel.classList.remove('placeable');
+      }
+    }
+  }
+}
+
+const ROTATE_MAP = {
+  'I-NS':'I-EW',  'I-EW':'I-NS',
+  'I2-NS':'I2-EW','I2-EW':'I2-NS',
+  'I3-NS':'I3-EW','I3-EW':'I3-NS',
+  'L-NE':'L-SE','L-SE':'L-SW','L-SW':'L-NW','L-NW':'L-NE',
+  'T-NES':'T-ESW','T-ESW':'T-NSW','T-NSW':'T-NEW','T-NEW':'T-NES',
+  'X':'X'
+};
+
+// 反時計回り（時計回りの逆）
+const ROTATE_MAP_CCW = {
+  'I-NS':'I-EW',  'I-EW':'I-NS',
+  'I2-NS':'I2-EW','I2-EW':'I2-NS',
+  'I3-NS':'I3-EW','I3-EW':'I3-NS',
+  'L-NE':'L-NW','L-NW':'L-SW','L-SW':'L-SE','L-SE':'L-NE',
+  'T-NES':'T-NEW','T-NEW':'T-NSW','T-NSW':'T-ESW','T-ESW':'T-NES',
+  'X':'X'
+};
+
+// ---- Water card UI helpers ----
+
+// Color per direction
+const DIR_COLOR = { N:'#e03030', E:'#2060e0', S:'#e0c800', W:'#6010c0' };
+
+// Returns HTML inner content for a front-face water card (70x98 box)
+function waterCardFrontHTML(dir) {
+  if (dir === 'dud') {
+    return `<div class="wcard-dir-container" style="flex-direction:column;gap:0;">
+      <div class="wcard-dud-text">不発</div>
+      <div class="wcard-dud-en">-nothing happens-</div>
+    </div>`;
+  }
+  const dirs = [...dir]; // e.g. 'NE' → ['N','E']
+  const parsed = [];
+  // parse compound directions properly
+  const dirNames = dir === 'NEWS' ? ['N','E','W','S'] : 
+                   dir === 'NS'   ? ['N','S'] :
+                   dir === 'EW'   ? ['E','W'] :
+                   dir.split('').filter(d => 'NEWS'.includes(d));
+  
+  const kanjiMap = { N:'北', E:'東', S:'南', W:'西' };
+  // Position map for each direction in the card (percentage of card width/height)
+  const posMap = {
+    N: { top:'8%',  left:'50%', transform:'translateX(-50%)' },
+    E: { top:'50%', left:'75%', transform:'translate(-50%,-50%)' },
+    S: { top:'72%', left:'50%', transform:'translateX(-50%)' },
+    W: { top:'50%', left:'25%', transform:'translate(-50%,-50%)' },
+  };
+  
+  if (dirNames.length === 1) {
+    const d = dirNames[0];
+    return `<div class="wcard-dir-container">
+      <span class="wcard-kanji-single" style="color:${DIR_COLOR[d]}">${kanjiMap[d]}</span>
+    </div>`;
+  }
+  
+  // Multi-direction: each kanji at its compass position
+  let inner = '<div class="wcard-dir-container">';
+  dirNames.forEach(d => {
+    const pos = posMap[d];
+    const posStyle = Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
+    inner += `<span class="wcard-kanji-multi" style="color:${DIR_COLOR[d]};${posStyle}">${kanjiMap[d]}</span>`;
+  });
+  inner += '</div>';
+  return inner;
+}
+
+// Render the flipped card area
+function renderFlippedCard(dir) {
+  const el = document.getElementById('flippedCard');
+  if (!el) return;
+  el.className = 'wcard wcard-front';
+  el.innerHTML = waterCardFrontHTML(dir);
+  el.classList.add('wcard-flip-anim');
+  setTimeout(() => el.classList.remove('wcard-flip-anim'), 500);
+}
+
+// Reset flipped card to empty
+function clearFlippedCard() {
+  const el = document.getElementById('flippedCard');
+  if (!el) return;
+  el.className = 'wcard wcard-front wcard-empty';
+  el.innerHTML = '<span style="color:#aaa;font-size:11px;">めくり待ち</span>';
+}
+
+// Update deck visual
+function updateDeckVisual() {
+  const countEl = document.getElementById('deckCount');
+  if (countEl) countEl.textContent = `${G.waterCards.length}枚`;
+  const stack = document.getElementById('deckStack');
+  if (stack) {
+    stack.style.opacity = G.waterCards.length === 0 ? '0.3' : '1';
+    stack.style.pointerEvents = (G.waterCards.length === 0 || G.phase !== 'action' || G.actionsLeft <= 0) ? 'none' : 'auto';
+  }
+}
+
+// Called when player clicks deck
+function onDeckClick() {
+  if (G.phase !== 'action' || G.actionsLeft <= 0 || G.waterCards.length === 0) return;
+  // Show confirm popup
+  document.getElementById('confirmDeckCount').textContent = G.waterCards.length;
+  document.getElementById('cardConfirmOverlay').classList.add('show');
+}
+
+function cancelDrawCard() {
+  document.getElementById('cardConfirmOverlay').classList.remove('show');
+}
+
+function confirmDrawCard() {
+  document.getElementById('cardConfirmOverlay').classList.remove('show');
+  drawWaterCard();
+}
+
+function drawWaterCard() {
+  if (G.phase !== 'action' || G.waterCards.length === 0) return;
+  
+  const card = G.waterCards.pop();
+  G.lastCard = card;
+  
+  SFX.cardFlip();
+  // デッキにプレイヤーカラーのグロー
+  const deckEl = document.getElementById('deckStack');
+  if (deckEl) {
+    deckEl.style.boxShadow = `0 0 0 3px ${G.players[G.currentPlayer].color}, 0 0 16px ${G.players[G.currentPlayer].glow}`;
+    setTimeout(() => { deckEl.style.boxShadow = ''; }, 1000);
+  }
+  // Show flipped card
+  renderFlippedCard(card);
+  updateDeckVisual();
+  
+  addLog(`${G.players[G.currentPlayer].name} が湧き水カードを引いた: 【${cardName(card)}】`, true);
+  
+  let results = [];
+  if (card !== 'dud') {
+    // Slight delay so flip sound plays first, then water
+    setTimeout(() => SFX.waterFlow(), 200);
+    results = flowWater(card);
+    // Score sounds (staggered per result)
+    results.forEach((r, i) => {
+      setTimeout(() => SFX.score(r.totalPts), 500 + i * 300);
+    });
+  } else {
+    setTimeout(() => SFX.dud(), 200);
+    addLog('不発！水は流れなかった');
+  }
+  
+  // Show result popup
+  showWaterResult(card, results);
+  
+  G.actionsLeft--;
+  
+  if (G.waterCards.length === 0) {
+    addLog('湧き水カードが尽きた！', true);
+    G._deckEmpty = true;
+  }
+  G._pendingWaterResult = true;
+  updateUI();
+}
+
+function flowWater(directions) {
+  const dirVecs   = { N:[-1,0], E:[0,1], S:[1,0], W:[0,-1] };
+  const enterSide = { N:'S', S:'N', E:'W', W:'E' };
+
+  const cardDirs = parseCardDirs(directions);
+
+  // シシオドシへの到達を全て収集（同じシシオドシに複数経路・複数方向から届く場合も全て加算）
+  // visited は竹筒マスのループ防止のみ。シシオドシへの到達はカウントし続ける。
+  const shishiHits = []; // { r, c, pathMul }
+
+  cardDirs.forEach(startDir => {
+    // 1カード方向ごとに独立したBFS
+    const visited = new Set();
+    const queue   = [];
+    const [dr,dc] = dirVecs[startDir];
+    queue.push([4+dr, 4+dc, startDir, 1]);
+
+    while (queue.length > 0) {
+      const [r, c, fromDir, pathMul] = queue.shift();
+      if (r<0||r>=GRID||c<0||c>=GRID) continue;
+      const bd = G.board[r][c];
+
+      if (bd.shishi) {
+        // シシオドシに到達 → 記録（visitedに入れず、何度でもカウント可能にはしない
+        // ただし同じ経路の重複は防ぐためvisitedキーにfromDirも含む）
+        const hitKey = `${r},${c},${fromDir}`;
+        if (!visited.has(hitKey)) {
+          visited.add(hitKey);
+          shishiHits.push({ r, c, pathMul });
+        }
+        continue;
+      }
+
+      // 竹筒マスのループ防止（fromDir含むキーで重複チェック）
+      const key = `${r},${c},${fromDir}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      if (!bd.bamboo) continue;
+      const conn = BAMBOO_SHAPES[bd.bamboo.shape];
+      if (!conn) continue;
+      const [cN,cE,cS,cW] = conn;
+      const connMap = { N:cN, E:cE, S:cS, W:cW };
+      const entryNeeded = enterSide[fromDir];
+      if (!connMap[entryNeeded]) continue;
+
+      const chipMul = bd.bamboo.multiplier || 1;
+      const newMul  = pathMul * chipMul;
+
+      ['N','E','S','W'].forEach((d,i) => {
+        if (d === entryNeeded || ![cN,cE,cS,cW][i]) return;
+        const [ddr,ddc] = dirVecs[d];
+        queue.push([r+ddr, c+ddc, d, newMul]);
+      });
+    }
+  });
+
+  // 集計：全ヒットをそれぞれ加算
+  const playerTotals = {};
+  const cellFlash    = new Set();
+
+  shishiHits.forEach(({ r, c, pathMul }) => {
+    const shishi = G.board[r][c].shishi;
+    if (!shishi) return;
+    const pts    = shishi.points * pathMul;
+    G.players[shishi.player].score += pts;
+    const mulStr = pathMul > 1 ? ` (×${pathMul})` : '';
+    addLog(`💧 ${G.players[shishi.player].name}のシシオドシ(${shishi.points}点)に到達！+${pts}点${mulStr}`, true);
+
+    if (!playerTotals[shishi.player]) playerTotals[shishi.player] = { totalPts: 0, hits: [] };
+    playerTotals[shishi.player].totalPts += pts;
+    playerTotals[shishi.player].hits.push({ shishiPts: shishi.points, mul: pathMul, totalPts: pts });
+    cellFlash.add(`${r},${c}`);
+  });
+
+  // Visual flash
+  cellFlash.forEach(key => {
+    const [r,c] = key.split(',').map(Number);
+    const cel = getCellEl(r,c);
+    if (cel) {
+      const flash = document.createElement('div');
+      flash.className = 'water-flow';
+      cel.appendChild(flash);
+      setTimeout(() => flash.remove(), 800);
+    }
+  });
+
+  // Build results array for popup (one entry per player)
+  const results = Object.entries(playerTotals).map(([pidStr, data]) => ({
+    player:    Number(pidStr),
+    shishiPts: data.hits[0]?.shishiPts || 0,
+    mul:       1,
+    totalPts:  data.totalPts,
+    hits:      data.hits,
+  }));
+
+  updateScoreDisplays();
+  checkWin();
+  return results;
+}
+
+function parseCardDirs(directions) {
+  const map = {
+    'N':['N'],'E':['E'],'S':['S'],'W':['W'],
+    'NE':['N','E'],'NW':['N','W'],'SE':['S','E'],'SW':['S','W'],
+    'NS':['N','S'],'EW':['E','W'],
+    'NEWS':['N','E','W','S'],
+  };
+  return map[directions] || [];
+}
+
+function endTurn() {
+  if (G.phase !== 'action' && G.phase !== 'end') return;
+  
+  // Refill hand to 5
+  const cp = G.players[G.currentPlayer];
+  while (cp.hand.length < 5 && G.chipPool.length > 0) {
+    cp.hand.push(G.chipPool.pop());
+  }
+  
+  addLog(`${cp.name} のターン終了`);
+  
+  G.currentPlayer = (G.currentPlayer + 1) % G.numPlayers;
+  G.lastCard = null;
+  clearFlippedCard();
+  
+  setPhase('roll');
+  document.getElementById('diceFace').textContent = '🎲';
+  updateUI();
+  addLog(`${G.players[G.currentPlayer].name} のターン`);
+  
+  // Show turn popup for next player
+  setTimeout(() => showTurnPopup(G.players[G.currentPlayer]), 200);
+}
+
+function checkWin() {
+  const winner = G.players.find(p => p.score >= 10);
+  if (winner) {
+    showWin(winner);
+  }
+}
+
+function checkEndByDeck() {
+  // Find highest scorer
+  const maxScore = Math.max(...G.players.map(p => p.score));
+  const leaders = G.players.filter(p => p.score === maxScore);
+  if (leaders.length === 1) {
+    showWin(leaders[0]);
+  } else {
+    addLog('同点！ゲームを続けます...', true);
+    if (G.actionsLeft <= 0) { setTimeout(() => endTurn(), 600); }
+    updateUI();
+  }
+}
+
+function showWin(p) {
+  G.gameOver = true;
+  const isHumanWinner = p.isHuman;
+  const kanjiEl  = document.getElementById('winKanji');
+  const subEl    = document.getElementById('winResultSub');
+  const nameEl   = document.getElementById('winName');
+  const scoreEl  = document.getElementById('winScore');
+
+  if (isHumanWinner) {
+    kanjiEl.textContent = '勝利！';
+    kanjiEl.className   = 'win-kanji';
+    subEl.textContent   = '';
+    nameEl.textContent  = p.name;
+    nameEl.style.color  = p.color;
+    scoreEl.textContent = `${p.score} 点獲得！`;
+    setTimeout(() => SFX.win(), 200);
+  } else {
+    // 人間プレイヤーが敗北
+    const humanPlayer = G.players.find(pl => pl.isHuman);
+    kanjiEl.textContent = '敗北…';
+    kanjiEl.className   = 'win-kanji defeat';
+    subEl.textContent   = `${p.name} の勝利！`;
+    subEl.style.color   = p.color;
+    nameEl.textContent  = humanPlayer
+      ? `あなた（${humanPlayer.name}）: ${humanPlayer.score}点`
+      : '';
+    nameEl.style.color  = humanPlayer ? humanPlayer.color : '#aaa';
+    scoreEl.textContent = `${p.name}: ${p.score} 点獲得`;
+    scoreEl.style.color = p.color;
+  }
+
+  document.getElementById('winOverlay').classList.add('show');
+  addLog(`🏆 ${p.name} の勝利！`, true);
+}
+
+function reviewGame() {
+  // オーバーレイを隠して盤面を確認できるようにする
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('reviewBanner').style.display = 'flex';
+}
+
+function endReview() {
+  document.getElementById('winOverlay').classList.add('show');
+  document.getElementById('reviewBanner').style.display = 'none';
+}
+
+// ============================================================
+// LOG
+// ============================================================
+function addLog(msg, highlight=false) {
+  const box = document.getElementById('logBox');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry' + (highlight ? ' highlight' : '');
+  entry.textContent = msg;
+  box.appendChild(entry);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ============================================================
+// WATER CARD RESULT POPUP
+// ============================================================
+
+function showWaterResult(card, results) {
+  const dirColors = { N:'#e03030', E:'#2060e0', S:'#d4a820', W:'#9020c0' };
+
+  // --- Card image at top ---
+  const cardDisplay = document.getElementById('wrCardDisplay');
+  const cardEl = document.createElement('div');
+  cardEl.className = 'wcard wcard-front';
+  cardEl.innerHTML = waterCardFrontHTML(card);
+  cardDisplay.innerHTML = '';
+  cardDisplay.appendChild(cardEl);
+
+  // --- Headline row: direction label(s) + "方向に水が流れました" ---
+  const headlineRow = document.getElementById('wrHeadlineRow');
+  if (card === 'dud') {
+    headlineRow.innerHTML = '<div class="wr-dud-text">不発 <span style="font-size:14px;color:#666;font-weight:400;">— nothing happens —</span></div>';
+  } else {
+    const dirs = card === 'NEWS' ? ['N','E','W','S']
+               : card === 'NS'   ? ['N','S']
+               : card === 'EW'   ? ['E','W']
+               : card.split('').filter(d => 'NEWS'.includes(d));
+    const dirNames = { N:'北', E:'東', S:'南', W:'西' };
+
+    const labelHTML = dirs.map(d =>
+      `<span class="wr-dir-label" style="color:${dirColors[d]||'#aaa'}">${dirNames[d]||d}</span>`
+    ).join('<span style="color:#555;font-size:16px">・</span>');
+
+    headlineRow.innerHTML = `
+      <div class="wr-headline-row">
+        ${labelHTML}
+        <span class="wr-flow-text">方向に水が流れました</span>
+      </div>`;
+  }
+
+  // --- Score rows ---
+  const scoresEl = document.getElementById('wrScores');
+  scoresEl.innerHTML = '';
+
+  if (results.length === 0) {
+    scoresEl.innerHTML = '<div class="wr-no-score">💨 どのシシオドシにも水が届きませんでした</div>';
+  } else {
+    // Group by player, sum points
+    const byPlayer = {};
+    results.forEach(r => {
+      if (!byPlayer[r.player]) byPlayer[r.player] = { totalPts: 0, hits: [] };
+      byPlayer[r.player].totalPts += r.totalPts;
+      byPlayer[r.player].hits.push(r);
+    });
+
+    Object.entries(byPlayer).forEach(([pidStr, data]) => {
+      const pid = Number(pidStr);
+      const p   = G.players[pid];
+      const row = document.createElement('div');
+      row.className = 'wr-score-row';
+      row.style.setProperty('--row-color', p.color);
+
+      // Detail: e.g. "1点×1 + 2点×2" 
+      const detail = data.hits.map(h =>
+        h.mul > 1 ? `${h.shishiPts}点×${h.mul}倍` : `${h.shishiPts}点`
+      ).join(' + ');
+
+      const nowScore = p.score;
+
+      row.innerHTML = `
+        <div>
+          <div class="wr-score-name">${p.emoji} ${p.name}</div>
+          <div class="wr-score-detail">${detail} → 合計 ${nowScore}点</div>
+        </div>
+        <div>
+          <div class="wr-score-pts">+${data.totalPts}</div>
+          <div class="wr-pts-label">点</div>
+        </div>`;
+      scoresEl.appendChild(row);
+    });
+  }
+
+  document.getElementById('waterResultOverlay').classList.add('show');
+}
+
+function closeWaterResult() {
+  document.getElementById('waterResultOverlay').classList.remove('show');
+  G._pendingWaterResult = false;
+
+  if (G._deckEmpty) {
+    G._deckEmpty = false;
+    checkEndByDeck();
+    return;
+  }
+  if (G.gameOver) return;
+  if (G.actionsLeft <= 0) {
+    setTimeout(() => endTurn(), 300);
+  } else if (isCurrentCPU()) {
+    cpuContinue();
+  }
+}
+
+
+// ============================================================
+// SOUND ENGINE  (Web Audio API — no external files needed)
+// ============================================================
+const SFX = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function master(ac) {
+    const g = ac.createGain(); g.gain.value = 0.55; g.connect(ac.destination); return g;
+  }
+  function osc(ac, out, type, freq, start, dur, vol=0.5, endFreq=null) {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, start);
+    if (endFreq !== null) o.frequency.exponentialRampToValueAtTime(endFreq, start + dur);
+    g.gain.setValueAtTime(vol, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    o.connect(g); g.connect(out);
+    o.start(start); o.stop(start + dur + 0.01);
+  }
+  function noise(ac, out, start, dur, vol=0.3, lpFreq=4000) {
+    const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i=0; i<data.length; i++) data[i] = Math.random()*2-1;
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=lpFreq;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(vol, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    src.connect(lp); lp.connect(g); g.connect(out);
+    src.start(start); src.stop(start + dur + 0.01);
+  }
+
+  // サイコロ：コロコロと転がる木の音
+  function dice() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    for (let i=0; i<6; i++) {
+      const hit = t + i*0.065 + Math.random()*0.02;
+      noise(ac, m, hit, 0.06, 0.18 - i*0.02, 1200 + Math.random()*800);
+      osc(ac, m, 'sine', 280 + Math.random()*120, hit, 0.05, 0.12);
+    }
+    noise(ac, m, t+0.45, 0.12, 0.28, 900);
+    osc(ac, m, 'sine', 220, t+0.45, 0.18, 0.2);
+  }
+
+  // 竹筒チップを置く：竹の「コトン」
+  function place() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    osc(ac, m, 'sine', 440, t, 0.08, 0.35);
+    osc(ac, m, 'sine', 280, t+0.03, 0.12, 0.18);
+    noise(ac, m, t, 0.06, 0.18, 800);
+  }
+
+  // 回転チップ：シュルシュル
+  function rotate() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    osc(ac, m, 'sawtooth', 800, t, 0.35, 0.1, 200);
+    osc(ac, m, 'sine', 600, t+0.05, 0.3, 0.07, 150);
+    noise(ac, m, t, 0.35, 0.05, 3000);
+  }
+
+  // 破壊チップ：バキッ
+  function destroy() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    noise(ac, m, t, 0.15, 0.5, 6000);
+    noise(ac, m, t+0.02, 0.25, 0.35, 1200);
+    osc(ac, m, 'sawtooth', 180, t, 0.08, 0.28, 80);
+    osc(ac, m, 'square', 120, t+0.05, 0.12, 0.18);
+  }
+
+  // 湧き水カードをめくる：サラサラ
+  function cardFlip() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    noise(ac, m, t, 0.12, 0.22, 5000);
+    noise(ac, m, t+0.05, 0.10, 0.13, 8000);
+    osc(ac, m, 'sine', 900, t+0.08, 0.06, 0.06, 600);
+  }
+
+  // 水が流れる：チョロチョロ＋水滴ポチャン
+  function waterFlow() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    noise(ac, m, t, 0.9, 0.2, 2500);
+    noise(ac, m, t+0.1, 0.7, 0.13, 4000);
+    for (let i=0; i<4; i++) {
+      const pt = t + 0.2 + i*0.18 + Math.random()*0.06;
+      osc(ac, m, 'sine', 1200 - i*80, pt, 0.14, 0.14, 600 - i*40);
+    }
+  }
+
+  // 得点獲得：チャリン（点数が高いほど高音）
+  function score(pts) {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    const f = 600 + pts * 140;
+    osc(ac, m, 'sine', f,       t,      0.3,  0.38);
+    osc(ac, m, 'sine', f*1.5,   t+0.06, 0.24, 0.22);
+    osc(ac, m, 'sine', f*2,     t+0.12, 0.18, 0.14);
+    if (pts >= 2) osc(ac, m, 'sine', f*2.5, t+0.2, 0.16, 0.1);
+    if (pts >= 3) osc(ac, m, 'sine', f*3,   t+0.28, 0.14, 0.08);
+  }
+
+  // 不発：ボヨ〜ン
+  function dud() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    osc(ac, m, 'sine', 280, t, 0.5, 0.28, 100);
+    osc(ac, m, 'triangle', 180, t+0.12, 0.4, 0.13, 80);
+  }
+
+  // ターン交代：ポポン
+  function turnChange() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    osc(ac, m, 'sine', 520, t,      0.14, 0.28);
+    osc(ac, m, 'sine', 780, t+0.12, 0.12, 0.2);
+    osc(ac, m, 'sine', 1040, t+0.22, 0.1, 0.14);
+  }
+
+  // 勝利：ファンファーレ
+  function win() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    const mel = [523,659,784,1047,784,1047,1319];
+    const tms = [0,0.18,0.32,0.46,0.68,0.82,0.96];
+    mel.forEach((f,i) => {
+      osc(ac, m, 'sine', f, t+tms[i], 0.32, 0.38);
+      osc(ac, m, 'triangle', f*1.5, t+tms[i], 0.26, 0.13);
+    });
+    noise(ac, m, t, 0.12, 0.32, 200);
+    noise(ac, m, t+0.46, 0.12, 0.32, 200);
+  }
+
+  // ターン開始（ポップアップ閉じる）：ポン
+  function start() {
+    const ac = getCtx(); const t = ac.currentTime; const m = master(ac);
+    osc(ac, m, 'sine', 440, t,      0.12, 0.22);
+    osc(ac, m, 'sine', 660, t+0.09, 0.10, 0.16);
+  }
+
+  return { dice, place, rotate, destroy, cardFlip, waterFlow, score, dud, turnChange, win, start };
+})();
+
+// ============================================================
+// CPU AI ENGINE
+// ============================================================
+
+// CPUターンをキックする（rollフェーズから自動実行）
+function scheduleCPUTurn() {
+  if (!isCurrentCPU() || G.gameOver) return;
+  if (G.phase === 'roll') {
+    setTimeout(cpuDoRoll, CPU_DELAY('roll'));
+  }
+}
+
+function cpuDoRoll() {
+  if (!isCurrentCPU() || G.phase !== 'roll' || G.gameOver) return;
+
+  const hc  = G.handCount || 'dice';
+  const val = hc === '1' ? 1 : hc === '2' ? 2 : Math.floor(Math.random() * 3) + 1;
+  G.diceValue   = val;
+  G.actionsLeft = val;
+
+  const diceEl = document.getElementById('diceFace');
+
+  if (hc === 'dice') {
+    SFX.dice();
+    diceEl.classList.add('dice-rolling');
+    setTimeout(() => { diceEl.classList.remove('dice-rolling'); diceEl.textContent = val; }, 400);
+    addLog(`${G.players[G.currentPlayer].name}（CPU）がサイコロを振って ${val} が出た！`);
+    const diceGlow = diceEl;
+    diceGlow.style.boxShadow = `0 0 0 3px ${G.players[G.currentPlayer].color}, 0 0 16px ${G.players[G.currentPlayer].glow}`;
+    setTimeout(() => { diceGlow.style.boxShadow = ''; }, 1200);
+    setTimeout(() => { setPhase('action'); updateUI(); }, CPU_DELAY('action'));
+  } else {
+    // 固定手番：アニメーションなしで即アクション開始
+    diceEl.textContent = val;
+    addLog(`${G.players[G.currentPlayer].name}（CPU）のターン（${val}手番）`);
+    setPhase('action');
+    updateUI();
+  }
+}
+
+// CPUアクション完了後に次のアクションへ進む
+function cpuContinue() {
+  if (!isCurrentCPU() || G.gameOver || G._pendingWaterResult) return;
+  if (G.actionsLeft <= 0) {
+    setTimeout(() => endTurn(), CPU_DELAY('end'));
+    return;
+  }
+  setTimeout(() => cpuDoActions(), CPU_DELAY('continue'));
+}
+
+// CPUのアクションを順に実行（1アクション → cpuContinue で連鎖）
+function cpuDoActions() {
+  if (!isCurrentCPU() || G.phase !== 'action' || G.gameOver) return;
+  if (G.actionsLeft <= 0) { endTurn(); return; }
+
+  setTimeout(() => {
+    if (!isCurrentCPU() || G.gameOver) return;
+    const acted = cpuDecideAction();
+    if (!acted) endTurn();
+  }, CPU_DELAY('action'));
+}
+
+// CPUが1アクション決定・実行する。実行できたらtrue
+function cpuDecideAction() {
+  const diff = G.cpuDifficulty || 'normal';
+
+  if (diff === 'easy') {
+    return cpuDecideEasy();
+  } else if (diff === 'hard') {
+    return cpuDecideHard();
+  } else {
+    return cpuDecideNormal();
+  }
+}
+
+// ---- かんたん: ランダム配置 ----
+function cpuDecideEasy() {
+  const cp = G.players[G.currentPlayer];
+  const bambooChips = cp.hand
+    .map((chip, idx) => ({ chip, idx }))
+    .filter(({ chip }) => chipShape(chip) !== 'rotate' && !chip.startsWith('destroy'));
+
+  if (bambooChips.length > 0) {
+    // 置ける場所を全列挙してランダムに選ぶ
+    const candidates = [];
+    for (let r=0; r<GRID; r++) {
+      for (let c=0; c<GRID; c++) {
+        bambooChips.forEach(({ chip, idx }) => {
+          const zone = chipZone(chip);
+          if (zone && G.board[r][c].zone !== zone) return;
+          const prev = G.selectedChip;
+          G.selectedChip = chip;
+          const ok = canPlaceBamboo(r, c);
+          G.selectedChip = prev;
+          if (!ok) return;
+          candidates.push({ r, c, chip, origIdx: idx });
+        });
+      }
+    }
+    if (candidates.length > 0) {
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      G.selectedChip = pick.chip;
+      G.selectedChipIdx = pick.origIdx;
+      cp.hand[pick.origIdx] = pick.chip;
+      addLog(`${cp.name}（CPU）が竹筒チップを配置`);
+      placeBamboo(pick.r, pick.c);
+      return true;
+    }
+  }
+  // 竹筒が置けなければカードを引く
+  if (G.waterCards.length > 0) {
+    addLog(`${cp.name}（CPU）が湧き水カードを引く`);
+    cpuDrawCard();
+    return true;
+  }
+  return false;
+}
+
+// ---- ふつう: 水源・シシオドシ近傍優先 ----
+function cpuDecideNormal() {
+  const cp = G.players[G.currentPlayer];
+  const bambooChips = cp.hand
+    .map((chip, idx) => ({ chip, idx }))
+    .filter(({ chip }) => chipShape(chip) !== 'rotate' && !chip.startsWith('destroy'));
+
+  if (bambooChips.length > 0) {
+    const placed = cpuTryPlaceBamboo(bambooChips, false);
+    if (placed) return true;
+  }
+  if (G.waterCards.length > 0) {
+    addLog(`${cp.name}（CPU）が湧き水カードを引く`);
+    cpuDrawCard();
+    return true;
+  }
+  if (cp.hand.includes('rotate')) { cpuUseRotate(); return true; }
+  const destroyChip = cp.hand.find(h => h.startsWith('destroy'));
+  if (destroyChip) { cpuUseDestroy(destroyChip); return true; }
+  return false;
+}
+
+// ---- むずかしい: 経路シミュレーション ----
+function cpuDecideHard() {
+  const cp = G.players[G.currentPlayer];
+  const bambooChips = cp.hand
+    .map((chip, idx) => ({ chip, idx }))
+    .filter(({ chip }) => chipShape(chip) !== 'rotate' && !chip.startsWith('destroy'));
+
+  const hasCard = G.waterCards.length > 0;
+
+  // --- 戦略1: 「置いたら経路完成 → 即カード」コンボ狙い ---
+  // 残り手数が2以上あり、カードも引けるなら、
+  // 「この竹筒を置くと得点経路が完成するか」を先読みして
+  // 完成するなら即置いてカードへ繋げる
+  if (hasCard && G.actionsLeft >= 2 && bambooChips.length > 0) {
+    const comboPlaced = cpuTryComboPlace(bambooChips);
+    if (comboPlaced) return true;
+  }
+
+  // --- 戦略2: 現時点で高得点経路が既に完成している → 即カード ---
+  if (hasCard) {
+    const pathScore = cpuEstimatePathScore();
+    // 高得点経路（複数経路込み）があればカードを優先
+    if (pathScore >= 3) {
+      addLog(`${cp.name}（CPU）が湧き水カードを引く`);
+      cpuDrawCard();
+      return true;
+    }
+  }
+
+  // --- 戦略3: 竹筒配置（経路シミュレーション付き） ---
+  if (bambooChips.length > 0) {
+    const placed = cpuTryPlaceBamboo(bambooChips, true);
+    if (placed) return true;
+  }
+
+  // --- 戦略4: 残り手数が1ならカードを引く（もったいないので使い切る） ---
+  if (hasCard && G.actionsLeft === 1) {
+    addLog(`${cp.name}（CPU）が湧き水カードを引く`);
+    cpuDrawCard();
+    return true;
+  }
+
+  if (cp.hand.includes('rotate')) { cpuUseRotate(); return true; }
+  const destroyChip = cp.hand.find(h => h.startsWith('destroy'));
+  if (destroyChip) { cpuUseDestroy(destroyChip); return true; }
+
+  if (hasCard) {
+    addLog(`${cp.name}（CPU）が湧き水カードを引く`);
+    cpuDrawCard();
+    return true;
+  }
+  return false;
+}
+
+// 「置いたら経路完成 → カードで流し込む」コンボを狙う
+// 仮配置シミュレーションで得点が発生する手があれば実行してtrueを返す
+function cpuTryComboPlace(bambooChips) {
+  const cp = G.players[G.currentPlayer];
+  let bestCombo = null;
+
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      bambooChips.forEach(({ chip, idx }) => {
+        const zone = chipZone(chip);
+        if (zone && G.board[r][c].zone !== zone) return;
+        const shape = chipShape(chip);
+        cpuGetRotations(shape).forEach(rotShape => {
+          const testChip = zone ? `${rotShape}-${zone}` : rotShape;
+          const prev = G.selectedChip;
+          G.selectedChip = testChip;
+          const ok = canPlaceBamboo(r, c);
+          G.selectedChip = prev;
+          if (!ok) return;
+
+          // 仮配置して得点をシミュレート
+          G.board[r][c].bamboo = {
+            shape: rotShape, chipZone: zone,
+            multiplier: chipMultiplier(chip), player: G.currentPlayer,
+          };
+          let myPts = 0;
+          let routeBonus = 0;
+          const routeCount = {};
+          ['N','E','S','W'].forEach(dir => {
+            cpuSimulateFlow(dir).forEach(hit => {
+              if (hit.player === G.currentPlayer) {
+                myPts += hit.totalPts;
+                const k = `${hit.r},${hit.c}`;
+                routeCount[k] = (routeCount[k] || 0) + 1;
+              }
+            });
+          });
+          G.board[r][c].bamboo = null;
+
+          routeBonus = Object.values(routeCount).reduce((s, n) => s + Math.max(0, n-1)*2, 0);
+          const comboScore = myPts + routeBonus;
+
+          // 得点が発生する（＝経路が完成している）手を記録
+          if (comboScore > 0) {
+            if (!bestCombo || comboScore > bestCombo.score) {
+              bestCombo = { r, c, chip: testChip, origIdx: idx, score: comboScore };
+            }
+          }
+        });
+      });
+    }
+  }
+
+  if (!bestCombo) return false;
+
+  // コンボ手を実行
+  G.selectedChip = bestCombo.chip;
+  G.selectedChipIdx = bestCombo.origIdx;
+  cp.hand[bestCombo.origIdx] = bestCombo.chip;
+  addLog(`${cp.name}（CPU）が決め手の竹筒を配置！`);
+  placeBamboo(bestCombo.r, bestCombo.c);
+  return true;
+}
+
+// 現在の盤面で水が流れた場合に自分が得点できる経路スコアを推定（複数経路ボーナス含む）
+function cpuEstimatePathScore() {
+  const dirs = ['N','E','S','W'];
+  let best = 0;
+  dirs.forEach(d => {
+    const results = cpuSimulateFlow(d);
+    const myPts = results.filter(r => r.player === G.currentPlayer)
+                         .reduce((s, r) => s + r.totalPts, 0);
+    if (myPts > best) best = myPts;
+  });
+  return best;
+}
+
+// 指定方向で水を流したときの結果をシミュレート（flowWaterと同じ複数経路合算ロジック）
+function cpuSimulateFlow(direction) {
+  const dirVecs   = { N:[-1,0], E:[0,1], S:[1,0], W:[0,-1] };
+  const enterSide = { N:'S', S:'N', E:'W', W:'E' };
+  const visited = new Set();
+  const queue   = [];
+  const hits    = []; // { player, totalPts }
+
+  const [dr,dc] = dirVecs[direction];
+  queue.push([4+dr, 4+dc, direction, 1]);
+
+  while (queue.length > 0) {
+    const [r, c, fromDir, pathMul] = queue.shift();
+    if (r<0||r>=GRID||c<0||c>=GRID) continue;
+    const bd = G.board[r][c];
+
+    if (bd.shishi) {
+      const hitKey = `${r},${c},${fromDir}`;
+      if (!visited.has(hitKey)) {
+        visited.add(hitKey);
+        hits.push({ r, c, player: bd.shishi.player, pts: bd.shishi.points, totalPts: bd.shishi.points * pathMul });
+      }
+      continue;
+    }
+
+    const key = `${r},${c},${fromDir}`;
+    if (visited.has(key)) continue;
+    visited.add(key);
+
+    if (!bd.bamboo) continue;
+    const conn = BAMBOO_SHAPES[bd.bamboo.shape];
+    if (!conn) continue;
+    const [cN,cE,cS,cW] = conn;
+    if (!{ N:cN, E:cE, S:cS, W:cW }[enterSide[fromDir]]) continue;
+    const newMul = pathMul * (bd.bamboo.multiplier || 1);
+    ['N','E','S','W'].forEach((d,i) => {
+      if (d === enterSide[fromDir] || ![cN,cE,cS,cW][i]) return;
+      const [ddr,ddc] = dirVecs[d];
+      queue.push([r+ddr, c+ddc, d, newMul]);
+    });
+  }
+  return hits;
+}
+
+// 仮配置後の評価スコアを計算（むずかしいCPU）
+// ポイント：同じシシオドシへ複数経路が集まるほど高評価（大量得点を狙う戦略）
+function cpuSimulatePlacement(r, c, shape, chipIdx) {
+  const cp   = G.players[G.currentPlayer];
+  const zone = chipZone(cp.hand[chipIdx]);
+  G.board[r][c].bamboo = {
+    shape,
+    chipZone: zone,
+    multiplier: chipMultiplier(cp.hand[chipIdx]),
+    player: G.currentPlayer,
+  };
+
+  let myPts       = 0;
+  let opponentPts = 0;
+  // シシオドシごとの到達経路数を記録（多いほど大量得点のチャンス）
+  const routeCount = {}; // `r,c` → 到達回数
+
+  ['N','E','S','W'].forEach(dir => {
+    cpuSimulateFlow(dir).forEach(hit => {
+      if (hit.player === G.currentPlayer) {
+        myPts += hit.totalPts;
+        const k = `${hit.r},${hit.c}`;
+        routeCount[k] = (routeCount[k] || 0) + 1;
+      } else {
+        opponentPts += hit.totalPts;
+      }
+    });
+  });
+
+  G.board[r][c].bamboo = null;
+
+  // 複数経路ボーナス：2経路目以降は追加で2点分の評価を加える
+  // （これが「気づかれないうちに複数経路を作る」戦略をCPUに学ばせる）
+  const routeBonus = Object.values(routeCount).reduce((s, n) => s + Math.max(0, n - 1) * 2, 0);
+
+  // 相手への得点は軽く減点（妨害より自分の経路拡大を優先）
+  return myPts + routeBonus - opponentPts * 0.3 + Math.random() * 0.4;
+}
+function cpuTryPlaceBamboo(bambooChips, hardMode) {
+  const cp = G.players[G.currentPlayer];
+  const myShishis = [];
+  for (let r=0; r<GRID; r++) for (let c=0; c<GRID; c++) {
+    if (G.board[r][c].shishi && G.board[r][c].shishi.player === G.currentPlayer)
+      myShishis.push({ r, c });
+  }
+
+  const candidates = [];
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      bambooChips.forEach(({ chip, idx }) => {
+        const zone = chipZone(chip);
+        if (zone && G.board[r][c].zone !== zone) return;
+        const shape = chipShape(chip);
+        const rotVariants = cpuGetRotations(shape);
+        rotVariants.forEach(rotShape => {
+          const testChip = zone ? `${rotShape}-${zone}` : rotShape;
+          const prev = G.selectedChip;
+          G.selectedChip = testChip;
+          const ok = canPlaceBamboo(r, c);
+          G.selectedChip = prev;
+          if (!ok) return;
+
+          let score;
+          if (hardMode) {
+            // 経路シミュレーション: 仮に置いた後の得点期待値
+            score = cpuSimulatePlacement(r, c, rotShape, idx);
+          } else {
+            const distWater  = Math.abs(r-4) + Math.abs(c-4);
+            const distShishi = myShishis.length > 0
+              ? Math.min(...myShishis.map(s => Math.abs(r-s.r)+Math.abs(c-s.c)))
+              : 4;
+            score = -distWater - distShishi * 0.5 + Math.random() * 1.5;
+          }
+          candidates.push({ r, c, chip: testChip, origIdx: idx, score });
+        });
+      });
+    }
+  }
+
+  if (candidates.length === 0) return false;
+  candidates.sort((a, b) => b.score - a.score);
+  const best = candidates[0];
+
+  G.selectedChip = best.chip;
+  G.selectedChipIdx = best.origIdx;
+  cp.hand[best.origIdx] = best.chip;
+  addLog(`${cp.name}（CPU）が竹筒チップを配置`);
+  placeBamboo(best.r, best.c);
+  return true;
+}
+
+// 形状の全回転バリアントを返す
+function cpuGetRotations(shape) {
+  const variants = new Set([shape]);
+  let cur = shape;
+  for (let i=0; i<3; i++) {
+    cur = ROTATE_MAP[cur] || cur;
+    variants.add(cur);
+  }
+  return [...variants];
+}
+
+// CPU 湧き水カードを引く（ポップアップは一定時間後に自動で閉じる）
+function cpuDrawCard() {
+  drawWaterCard();
+  // 人間もCPUも「つぎへ」クリックまで進まない（自動クローズなし）
+}
+
+// CPU 回転チップ使用（一番良さそうな盤上チップを回転）
+function cpuUseRotate() {
+  const cp = G.players[G.currentPlayer];
+  const idx = cp.hand.indexOf('rotate');
+  if (idx === -1) return;
+
+  // 自分のシシオドシに近い竹筒を回転対象に選ぶ
+  let bestCell = null;
+  let bestShape = null;
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      const bam = G.board[r][c].bamboo;
+      if (bam && bam.shape !== 'rotate' && bam.shape !== 'destroy' && bam.shape !== 'X') {
+        bestCell = { r, c };
+        bestShape = bam.shape;
+        break;
+      }
+    }
+    if (bestCell) break;
+  }
+  if (!bestCell) { addLog(`${cp.name}（CPU）：回転対象なし`); return; }
+
+  // UIを出さずに直接時計回りで回転実行
+  const bd = G.board[bestCell.r][bestCell.c];
+  const newShape = ROTATE_MAP[bestShape] || bestShape;
+  bd.bamboo.shape = newShape;
+  if (bd.bamboo.chipType) {
+    const zone = bd.bamboo.chipZone || chipZone(bd.bamboo.chipType);
+    bd.bamboo.chipType = zone ? `${newShape}-${zone}` : newShape;
+  }
+  cp.hand.splice(idx, 1);
+  SFX.rotate();
+  addLog(`${cp.name}（CPU）が回転チップを使用`);
+
+  G.mode = null;
+  highlightBoardBamboo(false);
+
+  const celEl = getCellEl(bestCell.r, bestCell.c);
+  if (celEl) {
+    renderCellContent(celEl, bestCell.r, bestCell.c);
+    addPlayerHighlight(bestCell.r, bestCell.c, G.currentPlayer, false);
+  }
+
+  G.actionsLeft--;
+  if (G.actionsLeft <= 0) { setTimeout(() => endTurn(), CPU_DELAY('end')); updateUI(); return; }
+  updateUI();
+  cpuContinue();
+}
+
+// CPU 破壊チップ使用（相手の竹筒を優先して破壊）
+function cpuUseDestroy(destroyChip) {
+  const cp = G.players[G.currentPlayer];
+  const zone = chipZone(destroyChip);
+
+  // 対象: 自分以外のプレイヤーの竹筒（同ゾーン）
+  let target = null;
+  for (let r=0; r<GRID; r++) {
+    for (let c=0; c<GRID; c++) {
+      const bam = G.board[r][c].bamboo;
+      if (!bam || bam.shape === 'rotate' || bam.shape === 'destroy') continue;
+      if (bam.chipZone !== zone) continue;
+      if (bam.player !== G.currentPlayer) { target = { r, c }; break; }
+    }
+    if (target) break;
+  }
+  if (!target) return;
+
+  addLog(`${cp.name}（CPU）が破壊チップを使用`);
+  G.mode = 'destroy';
+  G.selectedChip = destroyChip;
+  G.selectedChipIdx = cp.hand.indexOf(destroyChip);
+  destroyBamboo(target.r, target.c);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cancelBoardRotate();
+    G.mode = null;
+    G.selectedChip = null;
+    G.selectedChipIdx = null;
+    document.getElementById('btnPlace').classList.remove('active');
+    document.getElementById('modeBadge').classList.remove('show');
+    document.querySelectorAll('.cell').forEach(c => c.classList.remove('placeable'));
+    showRotateBtns(false);
+    updateHandDisplays();
+  }
+});
+// ============================================================
+// TOOLTIP SYSTEM
+// ============================================================
+
+const TOOLTIP_CONTENT = {
+  // 竹筒チップ（形状×ゾーン）
+  bamboo: (chip) => {
+    const shape = chipShape(chip);
+    const zone  = chipZone(chip);
+    const mul   = chipMultiplier(chip);
+    const zoneNames = { gravel:'砂利', lawn:'芝', azalea:'つつじ', cherry:'桜' };
+    const shapeDesc = {
+      'I-NS':'直線（縦）', 'I-EW':'直線（横）',
+      'I2-NS':'直線（縦）', 'I2-EW':'直線（横）',
+      'I3-NS':'直線（縦）', 'I3-EW':'直線（横）',
+      'L-NE':'L字（北東）','L-SE':'L字（南東）','L-SW':'L字（南西）','L-NW':'L字（北西）',
+      'T-NES':'T字（北東南）','T-ESW':'T字（東南西）','T-NSW':'T字（北南西）','T-NEW':'T字（北東西）',
+      'X':'十字（全方向）',
+    };
+    const mulDesc = mul > 1 ? `<br>💫 <b>×${mul}倍チップ</b>：通過した水の得点が${mul}倍になります` : '';
+    return {
+      title: `竹筒チップ ［${zoneNames[zone]||zone}エリア用］`,
+      body: `<b>${shapeDesc[shape]||shape}</b>の水路を作ります。<br>`
+          + `中央の水源から自分のシシオドシへ向けて、水の通り道をつなぎましょう。<br>`
+          + `<b>${zoneNames[zone]||zone}エリア</b>のマスにのみ置けます。`
+          + mulDesc
+          + `<br><span class="tip-tag">クリックで選択 → もう一度クリックで回転 → 盤面に配置</span>`
+    };
+  },
+  rotate: () => ({
+    title: '回転チップ',
+    body: `盤面上の<b>任意の竹筒チップ1枚</b>を90度回転させます。<br>`
+        + `どのエリアの竹筒でも回転可能。水路の向きを変えて流れを調整しましょう。<br>`
+        + `<span class="tip-tag">クリック → 回転させたい竹筒をクリック</span>`
+  }),
+  destroy: (chip) => {
+    const zone = chipZone(chip);
+    const zoneNames = { gravel:'砂利', lawn:'芝', azalea:'つつじ' };
+    return {
+      title: `破壊チップ ［${zoneNames[zone]||zone}エリア用］`,
+      body: `<b>${zoneNames[zone]||zone}エリア</b>にある竹筒チップを1枚撤去します。<br>`
+          + `邪魔な竹筒を取り除いて水流を変えたり、相手のルートを妨害したりできます。<br>`
+          + `⚠ 桜エリアの竹筒は破壊できません。<br>`
+          + `<span class="tip-tag">クリック → 取り除く竹筒をクリック</span>`
+    };
+  },
+  'water-card': () => ({
+    title: '湧き水カード',
+    body: `引くと中央の<b>水源から特定の方向に水が流れます</b>。<br>`
+        + `水が竹筒チップを通って自分のシシオドシに到達すると<b>得点獲得！</b><br>`
+        + `「不発」が出ると水は流れません。<br>残り枚数がゼロになるとゲーム終了です。<br>`
+        + `<span class="tip-tag">クリックして引くかどうか確認</span>`
+  }),
+  dice: () => ({
+    title: 'サイコロ',
+    body: `ターン開始時にサイコロを振り（1〜3の目）、<b>出た目の数だけ行動</b>できます。<br>`
+        + `各行動で「竹筒チップを置く」「湧き水カードを引く」「特殊チップを使う」のいずれかを選びます。<br>`
+        + `<span class="tip-tag">自分のターンにクリックして振る</span>`
+  }),
+  'water-source': () => ({
+    title: '水源（湧き水）',
+    body: `このゲームの要となる<b>中央の水源</b>です。<br>`
+        + `湧き水カードを引くと、ここから水が溢れ出して周囲の竹筒チップへと流れていきます。<br>`
+        + `自分のシシオドシまで竹筒で水路をつなぐことが勝利への近道！<br>`
+        + `<span class="tip-tag">水源には竹筒チップを置けません</span>`
+  }),
+};
+
+// Tooltip DOM
+const _tip = document.getElementById('gameTooltip');
+const _tipTitle = document.getElementById('tipTitle');
+const _tipBody  = document.getElementById('tipBody');
+let _tipHideTimer = null;
+
+function showTooltip(el, content) {
+  clearTimeout(_tipHideTimer);
+  _tipTitle.textContent = content.title;
+  _tipBody.innerHTML    = content.body;
+
+  // Position: above the element by default, flip if near top edge
+  const rect = el.getBoundingClientRect();
+  _tip.style.opacity = '0';
+  _tip.classList.remove('visible');
+  _tip.style.display = 'block';
+
+  const tw = _tip.offsetWidth  || 220;
+  const th = _tip.offsetHeight || 80;
+
+  let left = rect.left + rect.width / 2 - tw / 2;
+  let top  = rect.top - th - 10;
+
+  // Clamp horizontally
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+  // Flip below if not enough space above
+  if (top < 8) top = rect.bottom + 10;
+
+  _tip.style.left = `${left}px`;
+  _tip.style.top  = `${top}px`;
+
+  // Force reflow then animate in
+  void _tip.offsetWidth;
+  _tip.classList.add('visible');
+}
+
+function hideTooltip() {
+  _tipHideTimer = setTimeout(() => {
+    _tip.classList.remove('visible');
+  }, 80);
+}
+
+// Attach tooltip to an element given a key or content object
+function attachTooltip(el, keyOrFn) {
+  el.addEventListener('mouseenter', () => {
+    const content = typeof keyOrFn === 'function' ? keyOrFn() : keyOrFn;
+    if (content) showTooltip(el, content);
+  });
+  el.addEventListener('mouseleave', hideTooltip);
+}
+
+// Attach to static elements (deck + dice) once DOM is ready
+function initStaticTooltips() {
+  const deckEl = document.getElementById('deckStack');
+  const diceEl = document.getElementById('diceFace');
+  if (deckEl) attachTooltip(deckEl, TOOLTIP_CONTENT['water-card']);
+  if (diceEl) attachTooltip(diceEl, TOOLTIP_CONTENT['dice']);
+}
+
+// Called after game screen shown
+// ============================================================
+// MOBILE: Board auto-scaling & score strip
+// ============================================================
+
+function isMobile() {
+  return window.innerWidth <= 600;
+}
+
+function scaleBoardForMobile() {
+  if (!isMobile()) {
+    const bc = document.querySelector('.board-container');
+    if (bc) bc.style.transform = '';
+    return;
+  }
+  const boardWrapper = document.querySelector('.board-wrapper');
+  const boardContainer = document.querySelector('.board-container');
+  if (!boardWrapper || !boardContainer) return;
+
+  boardContainer.style.transform = '';
+  boardContainer.style.transformOrigin = 'center center';
+
+  const wrapW = boardWrapper.clientWidth;
+  const wrapH = boardWrapper.clientHeight;
+  const bcW = boardContainer.scrollWidth;
+  const bcH = boardContainer.scrollHeight;
+
+  if (bcW === 0 || bcH === 0) return;
+
+  const scale = Math.min(wrapW / bcW, wrapH / bcH, 1);
+  boardContainer.style.transform = `scale(${scale})`;
+}
+
+function updateMobileScoreStrip() {
+  if (!isMobile()) return;
+  const strip = document.getElementById('scoreStrip');
+  if (!strip) return;
+  strip.style.display = 'flex';
+  strip.innerHTML = '';
+  if (!G || !G.players) return;
+
+  const colors = ['var(--red-p)', 'var(--blue-p)', 'var(--yellow-p)', 'var(--purple-p)'];
+  G.players.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'player-info-card' + (i === G.currentPlayer ? ' active' : '');
+    card.style.setProperty('--player-color', colors[i]);
+    card.style.setProperty('--player-glow', colors[i]);
+    card.innerHTML = `
+      <div class="player-name-row">
+        <div class="player-dot" style="background:${colors[i]}"></div>
+        <div class="player-card-name" style="font-size:10px">${p.name}${p.isCPU ? '<span class="cpu-badge">CPU</span>' : ''}</div>
+      </div>
+      <div class="score-display" style="color:${colors[i]};font-size:18px">${p.score}</div>
+      <div class="score-label">点</div>
+    `;
+    strip.appendChild(card);
+  });
+}
+
+window.addEventListener('resize', () => {
+  scaleBoardForMobile();
+  updateMobileScoreStrip();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  initStaticTooltips();
+  if (isMobile()) scaleBoardForMobile();
+});
+
+</script>
+</body>
+</html>
